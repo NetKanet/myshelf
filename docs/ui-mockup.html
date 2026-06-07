@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Shelf — UI Mockup v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+<style>
+  .mi {
+    font-family: 'Material Symbols Rounded';
+    font-size: 24px;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    vertical-align: middle;
+  }
+  .mi-sm { font-size: 18px; }
+  .mi-lg { font-size: 32px; }
+  .mi-xl { font-size: 40px; }
+</style>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FFF8E7;
+    --bg-card: #FFFFFF;
+    --bg-dim: #F4EDDD;
+    --navy: #1B1B3A;
+    --yellow: #FFD93D;
+    --yellow-light: #FFF3CD;
+    --coral: #FF6B6B;
+    --coral-light: #FFDAD6;
+    --teal: #4ECDC4;
+    --teal-light: #E8F8F5;
+    --purple: #B19CD9;
+    --purple-light: #F0E6FF;
+    --green: #7BC950;
+    --blue: #6BC5F8;
+    --white: #FFFFFF;
+    --gray: #7E7761;
+    --gray-light: #E9E2D2;
+    --on-surface: #1E1C12;
+    --border: 3px solid var(--navy);
+    --shadow: 4px 4px 0 var(--navy);
+    --shadow-sm: 3px 3px 0 var(--navy);
+    --radius: 16px;
+    --radius-sm: 12px;
+    --radius-pill: 9999px;
+  }
+
+  body {
+    font-family: 'Nunito Sans', system-ui, sans-serif;
+    background: #1a1a2e;
+    color: var(--on-surface);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px;
+    padding: 40px 24px;
+  }
+
+  h1.page-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 32px;
+    color: var(--white);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  p.page-subtitle {
+    color: var(--gray);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 14px;
+  }
+  .screen-label {
+    font-family: 'Fredoka', sans-serif;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ========== PHONE FRAME ========== */
+  .phone {
+    width: 375px;
+    height: 812px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 3px solid #333;
+  }
+  .status-bar {
+    height: 54px;
+    padding: 16px 28px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .home-indicator {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .home-bar {
+    width: 134px;
+    height: 5px;
+    background: var(--navy);
+    border-radius: 3px;
+    opacity: 0.2;
+  }
+
+  /* Decorative circles */
+  .deco {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.25;
+    z-index: 0;
+  }
+
+  /* ========== 1. AUTH SCREEN ========== */
+  .auth-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .auth-logo-wrap {
+    width: 100px;
+    height: 100px;
+    background: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  .auth-logo {
+    width: 72px;
+    height: 72px;
+    background: var(--yellow);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    border: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .auth-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .auth-subtitle {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 36px;
+  }
+  .input-group {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .input-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .input-field {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--navy);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 15px;
+    background: var(--white);
+    color: var(--on-surface);
+    outline: none;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--yellow);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.1s;
+  }
+  .btn-primary:active {
+    box-shadow: 0 0 0 var(--navy);
+    transform: translate(4px, 4px);
+  }
+  .auth-footer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--gray);
+  }
+  .auth-footer a { color: var(--teal); text-decoration: underline; }
+
+  /* Auth decorative */
+  .auth-deco-1 { width: 120px; height: 120px; background: var(--purple); top: 60px; left: -30px; }
+  .auth-deco-2 { width: 80px; height: 80px; background: var(--teal); bottom: 80px; right: -20px; }
+  .auth-deco-3 { width: 50px; height: 50px; background: var(--coral); top: 120px; right: 40px; opacity: 0.35; }
+  .auth-deco-4 { width: 160px; height: 160px; background: var(--teal); bottom: -40px; left: 40px; opacity: 0.15; }
+
+  /* ========== 2. SHELF SCREEN ========== */
+  .shelf-header {
+    padding: 4px 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .shelf-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .shelf-logo-icon {
+    font-size: 22px;
+  }
+  .shelf-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .shelf-title span { color: var(--navy); }
+  .btn-logout {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Nunito Sans', sans-serif;
+    text-decoration: underline;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    background: var(--bg-dim);
+    margin: 12px 24px 0;
+    border-radius: var(--radius-sm);
+    padding: 4px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    border-radius: 10px;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+  }
+  .tab.active {
+    color: var(--navy);
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .shelf-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+  }
+  .book-card {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    border: var(--border);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .book-cover {
+    width: 64px;
+    height: 94px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 2px solid var(--navy);
+  }
+  .cover-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  .cover-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  .cover-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+  .cover-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+  .cover-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+  .book-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+  }
+  .book-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .book-author {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .book-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal);
+    background: var(--teal-light);
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    width: fit-content;
+  }
+  .badge-reading {
+    background: var(--yellow-light);
+    color: #705D00;
+  }
+  .badge-want {
+    background: var(--purple-light);
+    color: #67558C;
+  }
+
+  .fab {
+    position: absolute;
+    bottom: 50px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.1s;
+  }
+  .fab:active {
+    box-shadow: 0 0 0 var(--navy);
+    transform: translate(4px, 4px);
+  }
+  .fab-icon { font-size: 26px; }
+
+  /* ========== 3. SCAN SCREEN ========== */
+  .scan-phone { background: #1a1a2e; }
+  .scan-header {
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .scan-back {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .scan-mode-badge {
+    padding: 6px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius-pill);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yellow);
+    letter-spacing: 0.08em;
+  }
+  .scan-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+  .scan-viewfinder {
+    width: 280px;
+    height: 220px;
+    position: relative;
+    margin-bottom: 32px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 20px;
+  }
+  .scan-corner {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border: 4px solid var(--yellow);
+  }
+  .scan-corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 16px 0 0 0; }
+  .scan-corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 16px 0 0; }
+  .scan-corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 16px; }
+  .scan-corner.br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 16px 0; }
+  .scan-line {
+    position: absolute;
+    width: 85%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--teal), var(--yellow), var(--teal), transparent);
+    left: 7.5%;
+    box-shadow: 0 0 16px var(--teal);
+    animation: scanLine 2.5s ease-in-out infinite;
+    border-radius: 2px;
+  }
+  @keyframes scanLine {
+    0%, 100% { top: 15%; opacity: 0.6; }
+    50% { top: 80%; opacity: 1; }
+  }
+  .scan-hint {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .scan-isbn-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+  }
+  .scan-isbn-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.03em;
+  }
+  .scan-isbn-number {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--yellow);
+    letter-spacing: 1.5px;
+  }
+  .btn-manual {
+    padding: 14px 32px;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: var(--radius-pill);
+    color: rgba(255,255,255,0.7);
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ========== 4. BOOK DETAIL SCREEN ========== */
+  .detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .detail-cover-area {
+    position: relative;
+    padding: 16px 24px 24px;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(180deg, var(--teal-light) 0%, var(--bg) 100%);
+  }
+  .detail-back {
+    position: absolute;
+    top: 8px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background: var(--white);
+    border: 2px solid var(--navy);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 2px 0 var(--navy);
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 2;
+  }
+  .detail-cover {
+    width: 150px;
+    height: 225px;
+    border-radius: var(--radius);
+    border: var(--border);
+    box-shadow: 6px 6px 0 var(--navy);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  .detail-cover-deco1 { width: 80px; height: 80px; background: var(--purple); top: 10px; right: 30px; }
+  .detail-cover-deco2 { width: 40px; height: 40px; background: var(--yellow); bottom: 30px; left: 30px; opacity: 0.4; }
+
+  .detail-body {
+    padding: 20px 24px 8px;
+  }
+  .detail-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .detail-author {
+    font-size: 15px;
+    color: var(--gray);
+    margin-bottom: 2px;
+  }
+  .detail-meta {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+
+  .status-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .status-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--gray-light);
+    background: var(--white);
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--gray);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .status-btn.active {
+    border-color: var(--navy);
+    background: var(--yellow);
+    color: var(--navy);
+    box-shadow: var(--shadow-sm);
+  }
+  .status-icon {
+    font-size: 22px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--navy);
+    margin-bottom: 16px;
+    box-shadow: 2px 2px 0 var(--navy);
+  }
+  .date-icon { font-size: 20px; }
+  .date-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray);
+    letter-spacing: 0.03em;
+  }
+  .date-value {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-left: auto;
+  }
+
+  .desc-section { margin-bottom: 16px; }
+  .desc-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .desc-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--gray);
+  }
+  .desc-toggle {
+    color: var(--teal);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .btn-delete {
+    width: 100%;
+    padding: 16px;
+    background: var(--coral);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: var(--shadow);
+    transition: all 0.1s;
+  }
+  .btn-delete:active {
+    box-shadow: 0 0 0 var(--navy);
+    transform: translate(4px, 4px);
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">My Shelf — UI Mockup v2</h1>
+<p class="page-subtitle">Stitch design system + Spec-accurate content | Soft-Brutalist style</p>
+
+<!-- ==================== 1. AUTH ==================== -->
+<div>
+  <div class="screen-label">1. Login</div>
+  <div class="phone">
+    <div class="deco auth-deco-1"></div>
+    <div class="deco auth-deco-2"></div>
+    <div class="deco auth-deco-3"></div>
+    <div class="deco auth-deco-4"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="font-size:12px">LTE &nbsp; 100%</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-logo-wrap" style="width:140px;height:140px;border:none;box-shadow:none;background:transparent;">
+        <img src="mascot.png" alt="My Shelf Mascot" style="width:140px;height:140px;object-fit:contain;" />
+      </div>
+      <div class="auth-title">My Shelf</div>
+      <div class="auth-subtitle">Your Personal Sanctuary</div>
+      <div class="input-group">
+        <div class="input-label"><span class="mi mi-sm">mail</span> Email Address</div>
+        <input class="input-field" type="email" value="admyhusky@gmail.com" />
+      </div>
+      <div class="input-group">
+        <div class="input-label"><span class="mi mi-sm">lock</span> Password</div>
+        <input class="input-field" type="password" value="••••••••" />
+      </div>
+      <button class="btn-primary">Enter The Library <span class="mi">menu_book</span></button>
+      <div class="auth-footer"><a href="#">Forgot password?</a></div>
+    </div>
+    <div class="home-indicator"><div class="home-bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== 2. SHELF ==================== -->
+<div>
+  <div class="screen-label">2. Shelf — Finished</div>
+  <div class="phone">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="font-size:12px">LTE &nbsp; 100%</span>
+    </div>
+    <div class="shelf-header">
+      <div class="shelf-logo">
+        <div class="shelf-title">My Shelf</div>
+      </div>
+      <button class="btn-logout">Logout</button>
+    </div>
+    <div class="tabs">
+      <div class="tab">Reading</div>
+      <div class="tab active">Finished</div>
+      <div class="tab">Want to Read</div>
+    </div>
+    <div class="shelf-list">
+      <div class="book-card">
+        <div class="book-cover cover-1"></div>
+        <div class="book-info">
+          <div class="book-title">Only Time Will Tell</div>
+          <div class="book-author">Jeffrey Archer</div>
+          <div class="book-date">Finished Jun 1, 2026</div>
+        </div>
+      </div>
+      <div class="book-card">
+        <div class="book-cover cover-2"></div>
+        <div class="book-info">
+          <div class="book-title">แมวสามบูท : Le Chat Botte</div>
+          <div class="book-author">Charles Perrault</div>
+          <div class="book-date">Finished May 20, 2026</div>
+        </div>
+      </div>
+      <div class="book-card">
+        <div class="book-cover cover-3"></div>
+        <div class="book-info">
+          <div class="book-title">Atomic Habits</div>
+          <div class="book-author">James Clear</div>
+          <div class="book-date">Finished May 5, 2026</div>
+        </div>
+      </div>
+      <div class="book-card">
+        <div class="book-cover cover-4"></div>
+        <div class="book-info">
+          <div class="book-title">The Alchemist</div>
+          <div class="book-author">Paulo Coelho</div>
+          <div class="book-date">Finished Apr 18, 2026</div>
+        </div>
+      </div>
+      <div class="book-card">
+        <div class="book-cover cover-5"></div>
+        <div class="book-info">
+          <div class="book-title">Deep Work</div>
+          <div class="book-author">Cal Newport</div>
+          <div class="book-date">Finished Mar 22, 2026</div>
+        </div>
+      </div>
+    </div>
+    <div class="fab"><span class="mi mi-lg" style="color:white">qr_code_scanner</span></div>
+    <div class="home-indicator"><div class="home-bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== 3. SCAN ==================== -->
+<div>
+  <div class="screen-label">3. Scan ISBN</div>
+  <div class="phone scan-phone">
+    <div class="status-bar" style="color: white;">
+      <span>9:41</span>
+      <span style="font-size:12px">LTE &nbsp; 100%</span>
+    </div>
+    <div class="scan-header">
+      <div class="scan-back">←</div>
+      <div class="scan-mode-badge">SCANNING MODE</div>
+    </div>
+    <div class="scan-body">
+      <div class="scan-viewfinder">
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-hint">Point camera at the barcode on the book</div>
+      <div class="scan-isbn-card">
+        <div>
+          <div class="scan-isbn-label">ISBN Detected</div>
+          <div class="scan-isbn-number">978-3-16-148410-0</div>
+        </div>
+      </div>
+      <button class="btn-manual"><span class="mi mi-sm" style="color:rgba(255,255,255,0.7)">keyboard</span> Enter ISBN manually</button>
+    </div>
+    <div class="home-indicator" style="background: #1a1a2e;">
+      <div class="home-bar" style="background: white;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. BOOK DETAIL ==================== -->
+<div>
+  <div class="screen-label">4. Book Detail</div>
+  <div class="phone">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="font-size:12px">LTE &nbsp; 100%</span>
+    </div>
+    <div class="detail-scroll">
+      <div class="detail-cover-area">
+        <div class="deco detail-cover-deco1"></div>
+        <div class="deco detail-cover-deco2"></div>
+        <div class="detail-back">←</div>
+        <div class="detail-cover"></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-title">Only Time Will Tell</div>
+        <div class="detail-author">by Jeffrey Archer</div>
+        <div class="detail-meta">Pan Books · 2011</div>
+
+        <div class="status-selector">
+          <div class="status-btn">
+            <span class="status-icon"><span class="mi">bookmark_add</span></span>
+            Want to Read
+          </div>
+          <div class="status-btn">
+            <span class="status-icon"><span class="mi">auto_stories</span></span>
+            Reading
+          </div>
+          <div class="status-btn active">
+            <span class="status-icon"><span class="mi">check_circle</span></span>
+            Finished
+          </div>
+        </div>
+
+        <div class="date-row">
+          <span class="mi" style="color:var(--navy)">event</span>
+          <div>
+            <div class="date-label">Completion Date</div>
+          </div>
+          <div class="date-value">2026-06-01</div>
+        </div>
+
+        <div class="desc-section">
+          <div class="desc-title">Description</div>
+          <div class="desc-text">
+            Only Time Will Tell opens with the story of a young boy called Harry Clifton. His mother, Maisie, is a waitress and his father died before he was born...
+          </div>
+          <span class="desc-toggle">Read more ↓</span>
+        </div>
+
+        <button class="btn-delete"><span class="mi mi-sm">delete</span> Remove from Shelf</button>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="home-bar"></div></div>
+  </div>
+</div>
+
+</body>
+</html>
