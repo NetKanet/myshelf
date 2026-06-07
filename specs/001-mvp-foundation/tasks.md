@@ -70,7 +70,7 @@ verified independently.
 
 ### Implementation
 
-- [ ] T014 [US1] **Manual setup**: configure Google OAuth per `research.md` R1 — create iOS/Android/Web OAuth client IDs in Google Cloud, enable Google provider in Supabase with the Web client ID + secret, add the reversed-client-ID URL scheme to `app/ios/Runner/Info.plist`
+- [X] T014 [US1] **Manual setup**: configure Google OAuth per `research.md` R1 — create iOS/Android/Web OAuth client IDs in Google Cloud, enable Google provider in Supabase with the Web client ID + secret, add the reversed-client-ID URL scheme to `app/ios/Runner/Info.plist`
 - [X] T015 [US1] Create `AuthProvider` in `app/lib/features/auth/auth_provider.dart` (google_sign_in → `supabase.auth.signInWithIdToken`, auth-state stream, signOut)
 - [X] T016 [US1] Build Auth screen in `app/lib/features/auth/auth_screen.dart` ("Sign in with Google" button, loading, error display, mascot)
 - [X] T017 [US1] Implement the auth redirect in `app/lib/core/router/app_router.dart` (unauthenticated → `/login`, authenticated → `/shelf`)
