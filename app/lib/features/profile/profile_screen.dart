@@ -121,14 +121,19 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(name,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontSize: 18),
+                  maxLines: 2,
+                  softWrap: true,
                   overflow: TextOverflow.ellipsis),
               if (email != null && email != name)
                 Text(email!,
                     style: TextStyle(
                         color: AppColors.navy.withValues(alpha: 0.5)),
-                    maxLines: 1,
+                    maxLines: 2,
+                    softWrap: true,
                     overflow: TextOverflow.ellipsis),
             ],
           ),

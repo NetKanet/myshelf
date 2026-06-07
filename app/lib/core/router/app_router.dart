@@ -8,6 +8,7 @@ import '../providers.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/home/home_shell.dart';
 import '../../features/scan/scan_screen.dart';
+import '../../features/scan/manual_entry_screen.dart';
 import '../../features/book_detail/book_detail_screen.dart';
 
 /// App router with an auth redirect: signed-out → /login, signed-in → /shelf.
@@ -30,6 +31,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const AuthScreen()),
       GoRoute(path: '/home', builder: (_, _) => const HomeShell()),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
+      GoRoute(
+          path: '/add-manual',
+          builder: (_, _) => const ManualEntryScreen()),
       GoRoute(
         path: '/book/:id',
         builder: (_, state) =>

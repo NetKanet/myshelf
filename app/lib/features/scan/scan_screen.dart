@@ -121,20 +121,6 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                 ],
               ),
             ),
-          Positioned(
-            bottom: 32,
-            child: TextButton.icon(
-              onPressed: () => _manual(null),
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.navy,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
-              icon: const Icon(Icons.edit_outlined),
-              label: const Text('Enter manually'),
-            ),
-          ),
         ],
       ),
     );

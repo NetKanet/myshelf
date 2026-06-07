@@ -4,9 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../profile/profile_screen.dart';
-import '../scan/scan_provider.dart';
-import '../scan/widgets/manual_input_dialog.dart';
-import '../shelf/shelf_provider.dart';
 import '../shelf/shelf_screen.dart';
 import 'widgets/add_sheet.dart';
 
@@ -27,23 +24,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       case AddAction.scan:
         context.push('/scan');
       case AddAction.manual:
-        await _addManual();
+        context.push('/add-manual');
       case null:
         break;
     }
-  }
-
-  Future<void> _addManual() async {
-    final input = await showDialog<ManualBookInput>(
-      context: context,
-      builder: (_) => const ManualInputDialog(),
-    );
-    if (input == null) return;
-    final id = await ref
-        .read(scanProvider.notifier)
-        .addManual(title: input.title, author: input.author);
-    ref.invalidate(shelfBooksProvider);
-    if (id != null && mounted) context.push('/book/$id');
   }
 
   @override

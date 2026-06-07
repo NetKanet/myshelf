@@ -299,6 +299,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                     const SizedBox(height: 8),
                     _DatePicker(
                         date: _dateStarted,
+                        maxDate: _dateFinished ?? DateTime.now(),
                         onChanged: (d) => setState(() => _dateStarted = d)),
                   ],
                   if (isFinished) ...[
@@ -307,6 +308,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                     const SizedBox(height: 8),
                     _DatePicker(
                         date: _dateFinished,
+                        minDate: _dateStarted,
                         onChanged: (d) => setState(() => _dateFinished = d)),
                   ],
                   // Review is available for any status.
@@ -463,18 +465,26 @@ class _StatusSelector extends StatelessWidget {
 
 class _DatePicker extends StatelessWidget {
   final DateTime? date;
+  final DateTime? minDate;
+  final DateTime? maxDate;
   final void Function(DateTime) onChanged;
-  const _DatePicker({this.date, required this.onChanged});
+  const _DatePicker(
+      {this.date, this.minDate, this.maxDate, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        final first = minDate ?? DateTime(2000);
+        final last = maxDate ?? DateTime.now();
+        var initial = date ?? DateTime.now();
+        if (initial.isBefore(first)) initial = first;
+        if (initial.isAfter(last)) initial = last;
         final picked = await showDatePicker(
           context: context,
-          initialDate: date ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
+          initialDate: initial,
+          firstDate: first,
+          lastDate: last,
         );
         if (picked != null) onChanged(picked);
       },
