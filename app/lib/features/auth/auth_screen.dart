@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import 'auth_provider.dart';
+import 'widgets/google_logo.dart';
 
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
@@ -75,7 +76,7 @@ class AuthScreen extends ConsumerWidget {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.login),
+                    : const GoogleLogo(size: 20),
                 label: Text(isLoading ? 'Signing in…' : 'Sign in with Google'),
               ),
             ],
