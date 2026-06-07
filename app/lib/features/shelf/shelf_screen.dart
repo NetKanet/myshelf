@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
-import '../auth/auth_provider.dart';
 import 'shelf_provider.dart';
 import 'widgets/book_card.dart';
 
@@ -16,23 +15,7 @@ class ShelfScreen extends ConsumerWidget {
     final shelf = ref.watch(filteredShelfProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Shelf'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.yellow,
-        foregroundColor: AppColors.navy,
-        onPressed: () => context.push('/scan'),
-        child: const Icon(Icons.qr_code_scanner_rounded),
-      ),
+      appBar: AppBar(title: const Text('My Shelf')),
       body: Column(
         children: [
           _FilterChips(active: filter),
@@ -113,7 +96,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final msg = filter == ShelfFilter.all
-        ? 'Your shelf is empty.\nTap the scan button to add a book.'
+        ? 'Your shelf is empty.\nTap + below to add a book.'
         : 'No “${filter.label}” books yet.';
     return Center(
       child: Padding(

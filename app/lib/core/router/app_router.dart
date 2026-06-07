@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers.dart';
 import '../../features/auth/auth_screen.dart';
-import '../../features/shelf/shelf_screen.dart';
+import '../../features/home/home_shell.dart';
 import '../../features/scan/scan_screen.dart';
 import '../../features/book_detail/book_detail_screen.dart';
 
@@ -17,18 +17,18 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: '/shelf',
+    initialLocation: '/home',
     refreshListenable: refresh,
     redirect: (context, state) {
       final loggedIn = client.auth.currentUser != null;
       final loggingIn = state.matchedLocation == '/login';
       if (!loggedIn) return loggingIn ? null : '/login';
-      if (loggingIn) return '/shelf';
+      if (loggingIn) return '/home';
       return null;
     },
     routes: [
       GoRoute(path: '/login', builder: (_, _) => const AuthScreen()),
-      GoRoute(path: '/shelf', builder: (_, _) => const ShelfScreen()),
+      GoRoute(path: '/home', builder: (_, _) => const HomeShell()),
       GoRoute(path: '/scan', builder: (_, _) => const ScanScreen()),
       GoRoute(
         path: '/book/:id',

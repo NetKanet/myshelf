@@ -58,11 +58,8 @@ class BookCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  if (userBook.status == ReadingStatus.finished &&
-                      userBook.dateFinished != null) ...[
-                    const SizedBox(height: 8),
-                    _FinishedBadge(date: userBook.dateFinished!),
-                  ],
+                  const SizedBox(height: 8),
+                  _StatusBadge(userBook: userBook),
                   if (userBook.rating != null) ...[
                     const SizedBox(height: 6),
                     _MiniStars(rating: userBook.rating!),
@@ -116,23 +113,33 @@ class _Placeholder extends StatelessWidget {
   }
 }
 
-class _FinishedBadge extends StatelessWidget {
-  final DateTime date;
-  const _FinishedBadge({required this.date});
+class _StatusBadge extends StatelessWidget {
+  final UserBook userBook;
+  const _StatusBadge({required this.userBook});
 
   @override
   Widget build(BuildContext context) {
+    final (color, text) = switch (userBook.status) {
+      ReadingStatus.finished => (
+          AppColors.mint,
+          userBook.dateFinished != null
+              ? '✓ Finished ${DateFormat('MMM d, yyyy').format(userBook.dateFinished!)}'
+              : '✓ Finished'
+        ),
+      ReadingStatus.reading => (AppColors.lavender, 'Reading'),
+      ReadingStatus.wantToRead => (AppColors.coral, 'Want to Read'),
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.mint.withValues(alpha: 0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        '✓ ${DateFormat('MMM d, yyyy').format(date)}',
-        style: const TextStyle(
+        text,
+        style: TextStyle(
           fontSize: 11,
-          color: AppColors.mint,
+          color: color,
           fontWeight: FontWeight.w600,
         ),
       ),

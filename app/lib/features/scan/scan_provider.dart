@@ -108,8 +108,9 @@ class ScanNotifier extends StateNotifier<ScanState> {
     }
   }
 
-  /// Manual entry when the ISBN isn't found anywhere.
-  Future<void> addManual({
+  /// Manual entry. Returns the user_book id (new or existing duplicate),
+  /// or null on error. Also updates [state] for state-driven callers.
+  Future<String?> addManual({
     required String title,
     String? author,
     String? isbn,
@@ -117,7 +118,7 @@ class ScanNotifier extends StateNotifier<ScanState> {
     final userId = _userId;
     if (userId == null) {
       state = const ScanError('Not signed in');
-      return;
+      return null;
     }
     state = const ScanLoading('manual');
     try {
@@ -130,7 +131,7 @@ class ScanNotifier extends StateNotifier<ScanState> {
         final existing = await _supabase.getUserBookByBookId(userId, book.id);
         if (existing != null) {
           state = ScanDuplicate(existing.id);
-          return;
+          return existing.id;
         }
       } else {
         book = await _supabase.insertBook({
@@ -147,8 +148,10 @@ class ScanNotifier extends StateNotifier<ScanState> {
         status: ReadingStatus.wantToRead.value,
       );
       state = ScanSuccess(userBook.id);
+      return userBook.id;
     } catch (e) {
       state = ScanError('Failed to save: $e');
+      return null;
     }
   }
 
