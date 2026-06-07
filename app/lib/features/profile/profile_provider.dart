@@ -12,6 +12,9 @@ class ProfileStats {
   final double? avgRating;
   final List<UserBook> recentReviews;
 
+  /// Finished-book counts per year, sorted newest year first.
+  final List<MapEntry<int, int>> finishedByYear;
+
   const ProfileStats({
     required this.reading,
     required this.finished,
@@ -20,6 +23,7 @@ class ProfileStats {
     required this.reviewed,
     required this.avgRating,
     required this.recentReviews,
+    required this.finishedByYear,
   });
 
   int get total => reading + finished + wantToRead;
@@ -36,6 +40,14 @@ ProfileStats computeStats(List<UserBook> books) {
       ? null
       : rated.map((b) => b.rating!).reduce((a, b) => a + b) / rated.length;
 
+  final byYear = <int, int>{};
+  for (final b in books.where((b) => b.status == ReadingStatus.finished)) {
+    final year = (b.dateFinished ?? b.createdAt).year;
+    byYear[year] = (byYear[year] ?? 0) + 1;
+  }
+  final byYearSorted = byYear.entries.toList()
+    ..sort((a, b) => b.key.compareTo(a.key));
+
   return ProfileStats(
     reading: books.where((b) => b.status == ReadingStatus.reading).length,
     finished: books.where((b) => b.status == ReadingStatus.finished).length,
@@ -45,6 +57,7 @@ ProfileStats computeStats(List<UserBook> books) {
     reviewed: reviewed.length,
     avgRating: avg,
     recentReviews: reviewed.take(10).toList(),
+    finishedByYear: byYearSorted,
   );
 }
 

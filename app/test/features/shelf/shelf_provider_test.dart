@@ -56,16 +56,28 @@ void main() {
       );
     });
 
-    test('Rated = rating not null', () {
-      expect(filterShelf(all, ShelfFilter.rated), [finishedRated]);
-    });
-
-    test('Reviewed = review not null/empty', () {
-      expect(filterShelf(all, ShelfFilter.reviewed), [finishedRated]);
-    });
-
     test('empty when no books match', () {
       expect(filterShelf([reading], ShelfFilter.finished), isEmpty);
+    });
+  });
+
+  group('groupShelf', () {
+    test('groups finished by year, then status sections', () {
+      final f2026 = ub(
+          id: 'a',
+          status: ReadingStatus.finished,
+          dateFinished: DateTime(2026, 6, 1));
+      final f2025 = ub(
+          id: 'b',
+          status: ReadingStatus.finished,
+          dateFinished: DateTime(2025, 2, 1));
+      final read = ub(id: 'c', status: ReadingStatus.reading);
+      final items = groupShelf([f2026, f2025, read]);
+
+      final headers =
+          items.whereType<ShelfSection>().map((s) => s.title).toList();
+      expect(headers, ['2026', '2025', 'Reading']);
+      expect(items.length, 6); // 3 headers + 3 books
     });
   });
 

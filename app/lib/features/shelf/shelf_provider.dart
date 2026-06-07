@@ -5,14 +5,12 @@ import '../../core/providers.dart';
 import '../../models/user_book.dart';
 import '../auth/auth_provider.dart';
 
-/// The filter chips shown above the shelf.
+/// Shelf filter options.
 enum ShelfFilter {
   all('All'),
   reading('Reading'),
   finished('Finished'),
-  wantToRead('Want to Read'),
-  rated('Rated'),
-  reviewed('Reviewed');
+  wantToRead('Want to Read');
 
   const ShelfFilter(this.label);
   final String label;
@@ -52,13 +50,35 @@ List<UserBook> filterShelf(List<UserBook> books, ShelfFilter filter) {
       return books.where((b) => b.status == ReadingStatus.finished).toList();
     case ShelfFilter.wantToRead:
       return books.where((b) => b.status == ReadingStatus.wantToRead).toList();
-    case ShelfFilter.rated:
-      return books.where((b) => b.rating != null).toList();
-    case ShelfFilter.reviewed:
-      return books
-          .where((b) => b.review != null && b.review!.isNotEmpty)
-          .toList();
   }
+}
+
+/// A section header in the grouped shelf list.
+class ShelfSection {
+  final String title;
+  const ShelfSection(this.title);
+}
+
+/// Turns a sorted book list into a flat list of [ShelfSection] headers and
+/// [UserBook]s, grouped by finish year (finished books) then by status.
+/// Example: "2026", book, book, "2025", book, "Reading", book, "Want to Read".
+List<Object> groupShelf(List<UserBook> sortedBooks) {
+  final out = <Object>[];
+  String? current;
+  for (final b in sortedBooks) {
+    final key = switch (b.status) {
+      ReadingStatus.finished =>
+        '${(b.dateFinished ?? b.createdAt).year}',
+      ReadingStatus.reading => 'Reading',
+      ReadingStatus.wantToRead => 'Want to Read',
+    };
+    if (key != current) {
+      out.add(ShelfSection(key));
+      current = key;
+    }
+    out.add(b);
+  }
+  return out;
 }
 
 /// Finished books sort by finish date desc; everything else by created_at desc.
