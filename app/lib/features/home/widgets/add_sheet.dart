@@ -28,11 +28,13 @@ Future<AddAction?> showAddSheet(BuildContext context) {
           const SizedBox(height: 8),
           _Item(
             icon: Icons.qr_code_scanner_rounded,
+            color: AppColors.mint,
             label: 'Scan book ISBN',
             onTap: () => Navigator.pop(context, AddAction.scan),
           ),
           _Item(
             icon: Icons.edit_outlined,
+            color: AppColors.coral,
             label: 'Add new book manually',
             onTap: () => Navigator.pop(context, AddAction.manual),
           ),
@@ -45,11 +47,13 @@ Future<AddAction?> showAddSheet(BuildContext context) {
 
 class _Item extends StatelessWidget {
   final IconData icon;
+  final Color color;
   final String label;
   final VoidCallback onTap;
 
   const _Item({
     required this.icon,
+    required this.color,
     required this.label,
     required this.onTap,
   });
@@ -57,7 +61,15 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.ink(context)),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: color, size: 22),
+      ),
       title: Text(label,
           style: TextStyle(
               fontWeight: FontWeight.w600, color: AppColors.ink(context))),

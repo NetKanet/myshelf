@@ -79,15 +79,12 @@ class ProfileScreen extends ConsumerWidget {
                       child: _MonthlyChart(months: s.finishedByMonth),
                     ),
                   ),
-                  if (s.finishedByYear.length > 1) ...[
+                  if (s.finishedByYearMonth.length > 1) ...[
                     const SizedBox(height: 20),
-                    _SectionTitle('Finished per year'),
+                    _SectionTitle('By month, per year'),
                     const SizedBox(height: 12),
                     _ChartCard(
-                      child: SizedBox(
-                        height: 170,
-                        child: _YearlyChart(data: s.finishedByYear),
-                      ),
+                      child: _YearMonthlyChart(data: s.finishedByYearMonth),
                     ),
                   ],
                 ],
@@ -463,73 +460,128 @@ class _MonthlyChart extends StatelessWidget {
   }
 }
 
-/// Line chart: finished books per year.
-class _YearlyChart extends StatelessWidget {
-  final List<MapEntry<int, int>> data; // newest first
-  const _YearlyChart({required this.data});
+/// Multi-line chart: one line per year, finished books across the 12 months.
+/// Lets you compare how each year's reading rose and fell month to month.
+class _YearMonthlyChart extends StatelessWidget {
+  final List<MapEntry<int, List<int>>> data; // oldest year first
+
+  const _YearMonthlyChart({required this.data});
+
+  // A distinct colour per year line (cycles if more than four years).
+  static const _lineColors = [
+    AppColors.lavender,
+    AppColors.mint,
+    AppColors.coral,
+    AppColors.yellow,
+  ];
+
+  Color _colorFor(int index) => _lineColors[index % _lineColors.length];
 
   @override
   Widget build(BuildContext context) {
-    final ordered = data.reversed.toList(); // oldest → newest on x-axis
-    final maxV =
-        ordered.fold<int>(1, (m, e) => e.value > m ? e.value : m).toDouble();
-    return LineChart(
-      LineChartData(
-        minY: 0,
-        maxY: maxV + 1,
-        minX: 0,
-        maxX: (ordered.length - 1).toDouble(),
-        borderData: FlBorderData(show: false),
-        gridData: const FlGridData(show: false),
-        lineTouchData: const LineTouchData(enabled: false),
-        titlesData: FlTitlesData(
-          leftTitles: _countAxis(context, maxV),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              interval: 1,
-              getTitlesWidget: (v, _) {
-                final i = v.toInt();
-                if (i < 0 || i >= ordered.length || v % 1 != 0) {
-                  return const SizedBox();
-                }
-                return Text('${ordered[i].key}',
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: AppColors.ink(context).withValues(alpha: 0.5)));
-              },
+    final maxV = data
+        .expand((e) => e.value)
+        .fold<int>(1, (m, v) => v > m ? v : m)
+        .toDouble();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Legend: a coloured dot + year for each line.
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Wrap(
+            spacing: 16,
+            runSpacing: 4,
+            children: [
+              for (var i = 0; i < data.length; i++)
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: _colorFor(i),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text('${data[i].key}',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink(context).withValues(alpha: 0.7))),
+                ]),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 160,
+          child: LineChart(
+            LineChartData(
+              minY: 0,
+              maxY: maxV + 1,
+              minX: 0,
+              maxX: 11,
+              borderData: FlBorderData(show: false),
+              gridData: const FlGridData(show: false),
+              lineTouchData: const LineTouchData(enabled: false),
+              titlesData: FlTitlesData(
+                leftTitles: _countAxis(context, maxV),
+                rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 1,
+                    reservedSize: 28,
+                    getTitlesWidget: (v, _) {
+                      if (v % 1 != 0 || v < 0 || v > 11) {
+                        return const SizedBox();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Transform.rotate(
+                          angle: -0.6,
+                          child: Text(
+                            _monthLabels[v.toInt()],
+                            style: TextStyle(
+                                fontSize: 8,
+                                color: AppColors.ink(context)
+                                    .withValues(alpha: 0.5)),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              lineBarsData: [
+                for (var i = 0; i < data.length; i++)
+                  LineChartBarData(
+                    spots: [
+                      for (var m = 0; m < 12; m++)
+                        FlSpot(m.toDouble(), data[i].value[m].toDouble()),
+                    ],
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: _colorFor(i),
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
+                        radius: 3,
+                        color: _colorFor(i),
+                        strokeWidth: 2,
+                        strokeColor: AppColors.surface(context),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [
-              for (var i = 0; i < ordered.length; i++)
-                FlSpot(i.toDouble(), ordered[i].value.toDouble()),
-            ],
-            isCurved: true,
-            color: AppColors.yellow,
-            barWidth: 3,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
-                radius: 4,
-                color: AppColors.yellow,
-                strokeWidth: 2,
-                strokeColor: AppColors.surface(context),
-              ),
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppColors.yellow.withValues(alpha: 0.15),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

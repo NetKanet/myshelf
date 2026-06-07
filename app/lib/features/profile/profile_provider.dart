@@ -19,6 +19,10 @@ class ProfileStats {
   final int monthlyYear;
   final List<int> finishedByMonth;
 
+  /// Per-year monthly breakdown (year → 12 month counts), oldest year first.
+  /// Powers the multi-line "by month, per year" comparison chart.
+  final List<MapEntry<int, List<int>>> finishedByYearMonth;
+
   const ProfileStats({
     required this.reading,
     required this.finished,
@@ -30,6 +34,7 @@ class ProfileStats {
     required this.finishedByYear,
     required this.monthlyYear,
     required this.finishedByMonth,
+    required this.finishedByYearMonth,
   });
 
   int get total => reading + finished + wantToRead;
@@ -64,6 +69,16 @@ ProfileStats computeStats(List<UserBook> books) {
     byMonth[m - 1]++;
   }
 
+  // Per-year monthly breakdown for the multi-line comparison chart.
+  final byYearMonth = <int, List<int>>{};
+  for (final b in books.where((b) => b.status == ReadingStatus.finished)) {
+    final d = b.dateFinished ?? b.createdAt;
+    final list = byYearMonth.putIfAbsent(d.year, () => List<int>.filled(12, 0));
+    list[d.month - 1]++;
+  }
+  final byYearMonthSorted = byYearMonth.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key)); // oldest year first
+
   return ProfileStats(
     reading: books.where((b) => b.status == ReadingStatus.reading).length,
     finished: books.where((b) => b.status == ReadingStatus.finished).length,
@@ -76,6 +91,7 @@ ProfileStats computeStats(List<UserBook> books) {
     finishedByYear: byYearSorted,
     monthlyYear: monthlyYear,
     finishedByMonth: byMonth,
+    finishedByYearMonth: byYearMonthSorted,
   );
 }
 
