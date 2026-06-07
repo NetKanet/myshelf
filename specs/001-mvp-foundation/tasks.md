@@ -32,12 +32,12 @@ verified independently.
 
 **Purpose**: Create the Flutter project and wire core dependencies.
 
-- [ ] T001 Run `flutter create app` at repo root and confirm it builds on the iOS simulator
-- [ ] T002 Add dependencies to `app/pubspec.yaml`: supabase_flutter, flutter_riverpod, go_router, google_sign_in, mobile_scanner, cached_network_image, http, intl; dev: mocktail, flutter_lints
-- [ ] T003 [P] Configure `app/analysis_options.yaml` (flutter_lints, zero-warning target)
-- [ ] T004 Create `app/lib/core/config/supabase_config.dart` with SUPABASE_URL + SUPABASE_ANON_KEY placeholders and add it to `.gitignore`
-- [ ] T005 [P] Create `app/lib/core/theme/app_theme.dart` with the app color palette and typography
-- [ ] T006 Initialize Supabase and wrap the app in `ProviderScope` in `app/lib/main.dart`
+- [X] T001 Run `flutter create app` at repo root and confirm it builds on the iOS simulator
+- [X] T002 Add dependencies to `app/pubspec.yaml`: supabase_flutter, flutter_riverpod, go_router, google_sign_in, mobile_scanner, cached_network_image, http, intl; dev: mocktail, flutter_lints
+- [X] T003 [P] Configure `app/analysis_options.yaml` (flutter_lints, zero-warning target)
+- [X] T004 Create `app/lib/core/config/supabase_config.dart` with SUPABASE_URL + SUPABASE_ANON_KEY placeholders and add it to `.gitignore`
+- [X] T005 [P] Create `app/lib/core/theme/app_theme.dart` with the app color palette and typography
+- [X] T006 Initialize Supabase and wrap the app in `ProviderScope` in `app/lib/main.dart`
 
 ---
 
@@ -48,10 +48,10 @@ verified independently.
 **⚠️ CRITICAL**: No user-story work can begin until this phase is complete.
 
 - [ ] T007 Apply the Supabase migration per `data-model.md`: ensure `books`/`user_books` columns, create `app_config` table, create the `public_finished_shelf` view, set RLS (`owner full access` on user_books, public read on books), GRANT SELECT on the view to `anon`, and ensure `anon` has NO direct read on `user_books`
-- [ ] T008 [P] Create `Book` model in `app/lib/models/book.dart` (fromJson/toJson; normalize cover `http://`→`https://`)
-- [ ] T009 [P] Create `UserBook` model in `app/lib/models/user_book.dart` (ReadingStatus enum, dates, `rating` double?, `review` String?, copyWith with clear flags)
-- [ ] T010 Create `SupabaseService` in `app/lib/services/supabase_service.dart` (books + user_books CRUD, watch/get by user, dedup helpers)
-- [ ] T011 [P] Create `GoogleBooksService` in `app/lib/services/google_books_service.dart` per `contracts/google-books-lookup.md`
+- [X] T008 [P] Create `Book` model in `app/lib/models/book.dart` (fromJson/toJson; normalize cover `http://`→`https://`)
+- [X] T009 [P] Create `UserBook` model in `app/lib/models/user_book.dart` (ReadingStatus enum, dates, `rating` double?, `review` String?, copyWith with clear flags)
+- [X] T010 Create `SupabaseService` in `app/lib/services/supabase_service.dart` (books + user_books CRUD, watch/get by user, dedup helpers)
+- [X] T011 [P] Create `GoogleBooksService` in `app/lib/services/google_books_service.dart` per `contracts/google-books-lookup.md`
 - [ ] T012 Set up GoRouter in `app/lib/core/router/app_router.dart` with routes `/login`, `/shelf`, `/scan`, `/book/:id` and an auth-redirect guard skeleton
 
 **Checkpoint**: Foundation ready — user stories can begin.
