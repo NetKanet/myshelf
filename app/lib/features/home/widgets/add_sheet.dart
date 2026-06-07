@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
 
-enum AddAction { scan, batchScan, search, manual }
+enum AddAction { scan, manual }
 
 /// Bottom sheet shown by the center "+" nav button.
 Future<AddAction?> showAddSheet(BuildContext context) {
@@ -32,18 +32,6 @@ Future<AddAction?> showAddSheet(BuildContext context) {
             onTap: () => Navigator.pop(context, AddAction.scan),
           ),
           _Item(
-            icon: Icons.document_scanner_outlined,
-            label: 'Batch scan books',
-            subtitle: 'Coming soon',
-            onTap: null,
-          ),
-          _Item(
-            icon: Icons.search_rounded,
-            label: 'Search new books',
-            subtitle: 'Coming soon',
-            onTap: null,
-          ),
-          _Item(
             icon: Icons.edit_outlined,
             label: 'Add new book manually',
             onTap: () => Navigator.pop(context, AddAction.manual),
@@ -58,33 +46,21 @@ Future<AddAction?> showAddSheet(BuildContext context) {
 class _Item extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String? subtitle;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const _Item({
     required this.icon,
     required this.label,
-    this.subtitle,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final disabled = onTap == null;
     return ListTile(
-      enabled: !disabled,
-      leading: Icon(icon,
-          color: disabled ? AppColors.lavender : AppColors.navy),
+      leading: Icon(icon, color: AppColors.navy),
       title: Text(label,
-          style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: disabled
-                  ? AppColors.navy.withValues(alpha: 0.4)
-                  : AppColors.navy)),
-      subtitle: subtitle != null
-          ? Text(subtitle!,
-              style: const TextStyle(fontSize: 12, color: AppColors.lavender))
-          : null,
+          style:
+              const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
       onTap: onTap,
     );
   }

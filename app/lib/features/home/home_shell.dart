@@ -28,8 +28,6 @@ class _HomeShellState extends ConsumerState<HomeShell> {
         context.push('/scan');
       case AddAction.manual:
         await _addManual();
-      case AddAction.batchScan:
-      case AddAction.search:
       case null:
         break;
     }
@@ -80,50 +78,74 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.10),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 70,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _NavIcon(
+                icon: Icons.library_books_rounded,
+                label: 'Shelf',
+                active: index == 0,
+                onTap: onShelf,
+              ),
+              _AddButton(onTap: onAdd),
+              _NavIcon(
+                icon: Icons.person_rounded,
+                label: 'Profile',
+                active: index == 1,
+                onTap: onProfile,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AddButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        height: 64,
+        width: 58,
+        height: 58,
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.yellow, Color(0xFFFFC93D)],
+          ),
+          shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColors.navy.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
+              color: AppColors.yellow.withValues(alpha: 0.55),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavIcon(
-              icon: Icons.library_books_rounded,
-              label: 'Shelf',
-              active: index == 0,
-              onTap: onShelf,
-            ),
-            GestureDetector(
-              onTap: onAdd,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: AppColors.yellow,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.add_rounded,
-                    color: AppColors.navy, size: 30),
-              ),
-            ),
-            _NavIcon(
-              icon: Icons.person_rounded,
-              label: 'Profile',
-              active: index == 1,
-              onTap: onProfile,
-            ),
-          ],
-        ),
+        child: const Icon(Icons.add_rounded, color: AppColors.navy, size: 32),
       ),
     );
   }
@@ -145,23 +167,33 @@ class _NavIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        active ? AppColors.navy : AppColors.navy.withValues(alpha: 0.35);
+        active ? AppColors.navy : AppColors.navy.withValues(alpha: 0.30);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 80,
+        width: 88,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 2),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              decoration: BoxDecoration(
+                color: active
+                    ? AppColors.yellow.withValues(alpha: 0.22)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 3),
             Text(label,
                 style: TextStyle(
                     fontSize: 11,
                     color: color,
-                    fontWeight:
-                        active ? FontWeight.w700 : FontWeight.w500)),
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500)),
           ],
         ),
       ),
