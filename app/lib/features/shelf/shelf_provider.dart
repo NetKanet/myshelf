@@ -5,12 +5,12 @@ import '../../core/providers.dart';
 import '../../models/user_book.dart';
 import '../auth/auth_provider.dart';
 
-/// Shelf filter options.
+/// Shelf filter options (order shown in the filter sheet).
 enum ShelfFilter {
   all('All'),
+  wantToRead('Want to Read'),
   reading('Reading'),
-  finished('Finished'),
-  wantToRead('Want to Read');
+  finished('Finished');
 
   const ShelfFilter(this.label);
   final String label;

@@ -253,7 +253,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                               Text(book!.publisher!,
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.navy
+                                      color: AppColors.ink(context)
                                           .withValues(alpha: 0.4))),
                             ],
                             const SizedBox(height: 8),
@@ -280,7 +280,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                                   child: Text('Clear rating',
                                       style: TextStyle(
                                           fontSize: 12,
-                                          color: AppColors.navy
+                                          color: AppColors.ink(context)
                                               .withValues(alpha: 0.5))),
                                 ),
                               ),

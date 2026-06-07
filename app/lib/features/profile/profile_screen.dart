@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/deco_background.dart';
 import '../auth/auth_provider.dart';
@@ -22,10 +23,9 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Profile'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => _showSettings(context, ref),
           ),
         ],
       ),
@@ -99,6 +99,76 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _showSettings(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Consumer(
+            builder: (context, ref, _) {
+              final mode = ref.watch(themeModeProvider);
+              final isDark = mode == ThemeMode.dark;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Text('Settings',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    secondary: Icon(
+                        isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
+                        color: AppColors.ink(context)),
+                    title: const Text('Dark mode'),
+                    value: isDark,
+                    activeThumbColor: AppColors.yellow,
+                    onChanged: (v) => ref
+                        .read(themeModeProvider.notifier)
+                        .state = v ? ThemeMode.dark : ThemeMode.light,
+                  ),
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.logout_rounded,
+                            color: AppColors.coral),
+                        label: const Text('Sign out',
+                            style: TextStyle(color: AppColors.coral)),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: const BorderSide(color: AppColors.coral),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ref
+                              .read(authControllerProvider.notifier)
+                              .signOut();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _Header extends StatelessWidget {
@@ -131,7 +201,7 @@ class _Header extends StatelessWidget {
               if (email != null && email != name)
                 Text(email!,
                     style: TextStyle(
-                        color: AppColors.navy.withValues(alpha: 0.5)),
+                        color: AppColors.ink(context).withValues(alpha: 0.5)),
                     maxLines: 2,
                     softWrap: true,
                     overflow: TextOverflow.ellipsis),
@@ -291,8 +361,23 @@ class _ChartCard extends StatelessWidget {
 }
 
 const _monthLabels = [
-  'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'
+  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
 ];
+
+/// Left axis showing whole-number book counts.
+AxisTitles _countAxis(double maxV) => AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 24,
+        interval: 1,
+        getTitlesWidget: (v, _) {
+          if (v % 1 != 0 || v > maxV) return const SizedBox();
+          return Text('${v.toInt()}',
+              style: TextStyle(
+                  fontSize: 10, color: AppColors.navy.withValues(alpha: 0.4)));
+        },
+      ),
+    );
 
 /// Always-on value labels above each bar (so the chart shows numbers too).
 BarTouchData _valueLabels() => BarTouchData(
@@ -330,8 +415,7 @@ class _MonthlyChart extends StatelessWidget {
         gridData: const FlGridData(show: false),
         barTouchData: _valueLabels(),
         titlesData: FlTitlesData(
-          leftTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: _countAxis(maxV),
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles:
@@ -386,8 +470,7 @@ class _YearlyChart extends StatelessWidget {
         gridData: const FlGridData(show: false),
         barTouchData: _valueLabels(),
         titlesData: FlTitlesData(
-          leftTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: _countAxis(maxV),
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles:

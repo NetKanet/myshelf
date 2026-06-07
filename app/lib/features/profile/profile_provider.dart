@@ -54,10 +54,8 @@ ProfileStats computeStats(List<UserBook> books) {
   final byYearSorted = byYear.entries.toList()
     ..sort((a, b) => b.key.compareTo(a.key));
 
-  // Monthly breakdown: default to the most recent year with finishes,
-  // otherwise the current year.
-  final monthlyYear =
-      byYearSorted.isNotEmpty ? byYearSorted.first.key : DateTime.now().year;
+  // Monthly breakdown is always the current calendar year.
+  final monthlyYear = DateTime.now().year;
   final byMonth = List<int>.filled(12, 0);
   for (final b in books.where((b) =>
       b.status == ReadingStatus.finished &&

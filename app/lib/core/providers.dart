@@ -1,8 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/supabase_service.dart';
 import '../services/google_books_service.dart';
+
+/// App theme mode (light/dark). In-memory for now.
+final themeModeProvider = StateProvider<ThemeMode>((_) => ThemeMode.light);
 
 /// Shared, app-wide providers.
 

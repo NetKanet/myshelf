@@ -166,10 +166,10 @@ class _SectionHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: AppColors.navy,
+              color: AppColors.ink(context),
             ),
           ),
           const SizedBox(width: 6),
@@ -178,7 +178,7 @@ class _SectionHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.navy.withValues(alpha: 0.4),
+              color: AppColors.ink(context).withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(width: 12),
@@ -219,7 +219,7 @@ class _EmptyState extends StatelessWidget {
               msg,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.navy.withValues(alpha: 0.6),
+                    color: AppColors.ink(context).withValues(alpha: 0.6),
                   ),
             ),
           ],

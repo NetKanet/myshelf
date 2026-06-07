@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/config/supabase_config.dart';
+import 'core/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -27,6 +28,8 @@ class MyShelfApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'My Shelf',
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );
