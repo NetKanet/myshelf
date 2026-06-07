@@ -128,14 +128,14 @@ verified independently.
 
 ### Tests
 
-- [ ] T027 [P] [US4] Unit test `BookDetailProvider` in `app/test/features/book_detail/book_detail_provider_test.dart` (status transitions all directions, date auto-fill/clear, rating/review save, rating/review retained on un-finish, delete)
+- [X] T027 [P] [US4] Unit test `BookDetailProvider` in `app/test/features/book_detail/book_detail_provider_test.dart` (status transitions all directions, date auto-fill/clear, rating/review save, rating/review retained on un-finish, delete)
 
 ### Implementation
 
-- [ ] T028 [US4] Create `BookDetailProvider` in `app/lib/features/book_detail/book_detail_provider.dart` (load by id, `saveAll` for status/dates/rating/review, delete)
-- [ ] T029 [US4] Build Book Detail screen in `app/lib/features/book_detail/book_detail_screen.dart` (cover/placeholder, info chips, collapsible description, status selector, date pickers, half-star rating + review **shown only when Finished**, Save button, unsaved-changes dialog)
-- [ ] T030 [US4] Implement status-transition logic in the detail/provider (auto-fill/clear dates per FR-021; never clear rating/review on status change)
-- [ ] T031 [P] [US4] Build delete-confirm dialog in `app/lib/features/book_detail/widgets/delete_confirm_dialog.dart`
+- [X] T028 [US4] Create `BookDetailProvider` in `app/lib/features/book_detail/book_detail_provider.dart` (load by id, `saveAll` for status/dates/rating/review, delete)
+- [X] T029 [US4] Build Book Detail screen in `app/lib/features/book_detail/book_detail_screen.dart` (cover/placeholder, info chips, collapsible description, status selector, date pickers, half-star rating + review **shown only when Finished**, Save button, unsaved-changes dialog)
+- [X] T030 [US4] Implement status-transition logic in the detail/provider (auto-fill/clear dates per FR-021; never clear rating/review on status change)
+- [X] T031 [P] [US4] Build delete-confirm dialog in `app/lib/features/book_detail/widgets/delete_confirm_dialog.dart`
 
 **Checkpoint**: Full per-book tracking works and feeds the shelf filters.
 
