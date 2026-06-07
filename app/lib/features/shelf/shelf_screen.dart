@@ -13,28 +13,44 @@ class ShelfScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(shelfFilterProvider);
     final shelf = ref.watch(filteredShelfProvider);
+    final filtering = filter != ShelfFilter.all;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Shelf')),
+      appBar: AppBar(
+        title: const Text('My Shelf'),
+        actions: [
+          IconButton(
+            tooltip: 'Filter',
+            icon: Icon(
+              filtering
+                  ? Icons.filter_list_rounded
+                  : Icons.filter_list_outlined,
+              color: filtering ? AppColors.navy : AppColors.navy,
+            ),
+            onPressed: () => _showFilterSheet(context, ref, filter),
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          _FilterChips(active: filter),
+          if (filtering) _ActiveFilter(filter: filter),
           Expanded(
             child: shelf.when(
               loading: () =>
                   const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error: $e')),
               data: (books) {
-                if (books.isEmpty) {
-                  return _EmptyState(filter: filter);
-                }
+                if (books.isEmpty) return _EmptyState(filter: filter);
                 return RefreshIndicator(
                   onRefresh: () async => ref.invalidate(shelfBooksProvider),
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 4, bottom: 88),
+                    padding: const EdgeInsets.only(top: 8, bottom: 24),
                     itemCount: books.length,
                     itemBuilder: (_, i) => BookCard(
                       userBook: books[i],
+                      // Hide the per-card status badge when a status filter is
+                      // active (it would just repeat the chosen filter).
+                      showStatus: !_isStatusFilter(filter),
                       onTap: () => context.push('/book/${books[i].id}'),
                     ),
                   ),
@@ -46,44 +62,88 @@ class ShelfScreen extends ConsumerWidget {
       ),
     );
   }
+
+  bool _isStatusFilter(ShelfFilter f) =>
+      f == ShelfFilter.reading ||
+      f == ShelfFilter.finished ||
+      f == ShelfFilter.wantToRead;
+
+  void _showFilterSheet(
+      BuildContext context, WidgetRef ref, ShelfFilter current) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Text('Filter shelf',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontSize: 16)),
+            const SizedBox(height: 8),
+            ...ShelfFilter.values.map((f) {
+              final selected = f == current;
+              return ListTile(
+                leading: Icon(_iconFor(f),
+                    color: selected ? AppColors.navy : AppColors.lavender),
+                title: Text(f.label,
+                    style: TextStyle(
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
+                        color: AppColors.navy)),
+                trailing: selected
+                    ? const Icon(Icons.check_rounded, color: AppColors.navy)
+                    : null,
+                onTap: () {
+                  ref.read(shelfFilterProvider.notifier).state = f;
+                  Navigator.pop(context);
+                },
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _iconFor(ShelfFilter f) => switch (f) {
+        ShelfFilter.all => Icons.apps_rounded,
+        ShelfFilter.reading => Icons.menu_book_rounded,
+        ShelfFilter.finished => Icons.check_circle_outline_rounded,
+        ShelfFilter.wantToRead => Icons.bookmark_border_rounded,
+        ShelfFilter.rated => Icons.star_outline_rounded,
+        ShelfFilter.reviewed => Icons.rate_review_outlined,
+      };
 }
 
-class _FilterChips extends ConsumerWidget {
-  final ShelfFilter active;
-  const _FilterChips({required this.active});
+/// Small bar showing the active filter with a clear (✕) action.
+class _ActiveFilter extends ConsumerWidget {
+  final ShelfFilter filter;
+  const _ActiveFilter({required this.filter});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 52,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: ShelfFilter.values.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (_, i) {
-          final f = ShelfFilter.values[i];
-          final selected = f == active;
-          return ChoiceChip(
-            label: Text(f.label),
-            selected: selected,
-            onSelected: (_) =>
-                ref.read(shelfFilterProvider.notifier).state = f,
-            showCheckmark: false,
-            selectedColor: AppColors.yellow,
-            backgroundColor: Colors.white,
-            labelStyle: TextStyle(
-              color: AppColors.navy,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: selected ? AppColors.yellow : AppColors.lavender,
-              ),
-            ),
-          );
-        },
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: InputChip(
+          label: Text(filter.label),
+          backgroundColor: AppColors.yellow.withValues(alpha: 0.25),
+          side: const BorderSide(color: AppColors.yellow),
+          labelStyle: const TextStyle(
+              color: AppColors.navy, fontWeight: FontWeight.w600),
+          deleteIcon: const Icon(Icons.close_rounded, size: 18),
+          onDeleted: () =>
+              ref.read(shelfFilterProvider.notifier).state = ShelfFilter.all,
+        ),
       ),
     );
   }

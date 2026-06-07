@@ -8,8 +8,14 @@ import '../../../models/user_book.dart';
 class BookCard extends StatelessWidget {
   final UserBook userBook;
   final VoidCallback onTap;
+  final bool showStatus;
 
-  const BookCard({super.key, required this.userBook, required this.onTap});
+  const BookCard({
+    super.key,
+    required this.userBook,
+    required this.onTap,
+    this.showStatus = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +64,10 @@ class BookCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  const SizedBox(height: 8),
-                  _StatusBadge(userBook: userBook),
+                  if (showStatus) ...[
+                    const SizedBox(height: 8),
+                    _StatusBadge(userBook: userBook),
+                  ],
                   if (userBook.rating != null) ...[
                     const SizedBox(height: 6),
                     _MiniStars(rating: userBook.rating!),
