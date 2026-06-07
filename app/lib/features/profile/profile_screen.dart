@@ -46,14 +46,18 @@ class ProfileScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                        child: _MiniMetric(
-                            label: 'Books finished',
-                            child: _BigNumber('${s.finished}'))),
+                      child: _MiniMetric(
+                        label: 'Books finished',
+                        child: _BigNumber('${s.finished}'),
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
-                        child: _MiniMetric(
-                            label: 'This year',
-                            child: _BigNumber('$thisYear'))),
+                      child: _MiniMetric(
+                        label: 'This year',
+                        child: _BigNumber('$thisYear'),
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _MiniMetric(
@@ -100,68 +104,81 @@ class ProfileScreen extends ConsumerWidget {
   void _showSettings(BuildContext context, WidgetRef ref) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.surface(context),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return SafeArea(
-          child: Consumer(
-            builder: (context, ref, _) {
-              final mode = ref.watch(themeModeProvider);
-              final isDark = mode == ThemeMode.dark;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 12),
-                  Text('Settings',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontSize: 16)),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
-                    secondary: Icon(
+        // Paint the panel inside the Consumer so flipping the toggle
+        // recolours the sheet itself live (not just its contents).
+        return Consumer(
+          builder: (context, ref, _) {
+            final mode = ref.watch(themeModeProvider);
+            final isDark = mode == ThemeMode.dark;
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 12),
+                    Text(
+                      'Settings',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      secondary: Icon(
                         isDark
                             ? Icons.dark_mode_rounded
                             : Icons.light_mode_rounded,
-                        color: AppColors.ink(context)),
-                    title: const Text('Dark mode'),
-                    value: isDark,
-                    activeThumbColor: AppColors.yellow,
-                    onChanged: (v) => ref
-                        .read(themeModeProvider.notifier)
-                        .state = v ? ThemeMode.dark : ThemeMode.light,
-                  ),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.logout_rounded,
-                            color: AppColors.coral),
-                        label: const Text('Sign out',
-                            style: TextStyle(color: AppColors.coral)),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: AppColors.coral),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                        color: AppColors.ink(context),
+                      ),
+                      title: const Text('Dark mode'),
+                      value: isDark,
+                      activeThumbColor: AppColors.yellow,
+                      onChanged: (v) =>
+                          ref.read(themeModeProvider.notifier).state = v
+                          ? ThemeMode.dark
+                          : ThemeMode.light,
+                    ),
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          icon: const Icon(
+                            Icons.logout_rounded,
+                            color: AppColors.coral,
+                          ),
+                          label: const Text(
+                            'Sign out',
+                            style: TextStyle(color: AppColors.coral),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: AppColors.coral),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            ref.read(authControllerProvider.notifier).signOut();
+                          },
                         ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ref
-                              .read(authControllerProvider.notifier)
-                              .signOut();
-                        },
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -187,21 +204,25 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontSize: 18),
+              Text(
+                name,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                maxLines: 2,
+                softWrap: true,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (email != null && email != name)
+                Text(
+                  email!,
+                  style: TextStyle(
+                    color: AppColors.ink(context).withValues(alpha: 0.5),
+                  ),
                   maxLines: 2,
                   softWrap: true,
-                  overflow: TextOverflow.ellipsis),
-              if (email != null && email != name)
-                Text(email!,
-                    style: TextStyle(
-                        color: AppColors.ink(context).withValues(alpha: 0.5)),
-                    maxLines: 2,
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis),
+                  overflow: TextOverflow.ellipsis,
+                ),
             ],
           ),
         ),
@@ -217,8 +238,12 @@ class _StatusBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final max = [s.reading, s.finished, s.wantToRead, 1]
-        .reduce((a, b) => a > b ? a : b);
+    final max = [
+      s.reading,
+      s.finished,
+      s.wantToRead,
+      1,
+    ].reduce((a, b) => a > b ? a : b);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -228,22 +253,25 @@ class _StatusBreakdown extends StatelessWidget {
       child: Column(
         children: [
           _Bar(
-              label: 'Reading',
-              value: s.reading,
-              max: max,
-              color: AppColors.lavender),
+            label: 'Reading',
+            value: s.reading,
+            max: max,
+            color: AppColors.lavender,
+          ),
           const SizedBox(height: 12),
           _Bar(
-              label: 'Finished',
-              value: s.finished,
-              max: max,
-              color: AppColors.mint),
+            label: 'Finished',
+            value: s.finished,
+            max: max,
+            color: AppColors.mint,
+          ),
           const SizedBox(height: 12),
           _Bar(
-              label: 'Want to Read',
-              value: s.wantToRead,
-              max: max,
-              color: AppColors.coral),
+            label: 'Want to Read',
+            value: s.wantToRead,
+            max: max,
+            color: AppColors.coral,
+          ),
         ],
       ),
     );
@@ -255,11 +283,12 @@ class _Bar extends StatelessWidget {
   final int value;
   final int max;
   final Color color;
-  const _Bar(
-      {required this.label,
-      required this.value,
-      required this.max,
-      required this.color});
+  const _Bar({
+    required this.label,
+    required this.value,
+    required this.max,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,10 +296,13 @@ class _Bar extends StatelessWidget {
       children: [
         SizedBox(
           width: 92,
-          child: Text(label,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.ink(context).withValues(alpha: 0.7))),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.ink(context).withValues(alpha: 0.7),
+            ),
+          ),
         ),
         Expanded(
           child: ClipRRect(
@@ -278,8 +310,9 @@ class _Bar extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                    height: 16,
-                    color: AppColors.lavender.withValues(alpha: 0.15)),
+                  height: 16,
+                  color: AppColors.lavender.withValues(alpha: 0.15),
+                ),
                 FractionallySizedBox(
                   widthFactor: max == 0 ? 0 : value / max,
                   child: Container(height: 16, color: color),
@@ -291,10 +324,14 @@ class _Bar extends StatelessWidget {
         const SizedBox(width: 10),
         SizedBox(
           width: 22,
-          child: Text('$value',
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                  fontWeight: FontWeight.w800, color: AppColors.ink(context))),
+          child: Text(
+            '$value',
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: AppColors.ink(context),
+            ),
+          ),
         ),
       ],
     );
@@ -318,10 +355,13 @@ class _MiniMetric extends StatelessWidget {
         children: [
           child,
           const SizedBox(height: 4),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.ink(context).withValues(alpha: 0.5))),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: AppColors.ink(context).withValues(alpha: 0.5),
+            ),
+          ),
         ],
       ),
     );
@@ -334,11 +374,14 @@ class _BigNumber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(value,
-        style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: AppColors.ink(context)));
+    return Text(
+      value,
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        color: AppColors.ink(context),
+      ),
+    );
   }
 }
 
@@ -360,44 +403,58 @@ class _ChartCard extends StatelessWidget {
 }
 
 const _monthLabels = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 /// Left axis showing whole-number book counts.
 AxisTitles _countAxis(BuildContext context, double maxV) => AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        reservedSize: 24,
-        interval: 1,
-        getTitlesWidget: (v, _) {
-          if (v % 1 != 0 || v > maxV) return const SizedBox();
-          return Text('${v.toInt()}',
-              style: TextStyle(
-                  fontSize: 10,
-                  color: AppColors.ink(context).withValues(alpha: 0.4)));
-        },
-      ),
-    );
+  sideTitles: SideTitles(
+    showTitles: true,
+    reservedSize: 24,
+    interval: 1,
+    getTitlesWidget: (v, _) {
+      if (v % 1 != 0 || v > maxV) return const SizedBox();
+      return Text(
+        '${v.toInt()}',
+        style: TextStyle(
+          fontSize: 10,
+          color: AppColors.ink(context).withValues(alpha: 0.4),
+        ),
+      );
+    },
+  ),
+);
 
 /// Always-on value labels above each bar (so the chart shows numbers too).
 BarTouchData _valueLabels(BuildContext context) => BarTouchData(
-      enabled: false,
-      touchTooltipData: BarTouchTooltipData(
-        getTooltipColor: (_) => Colors.transparent,
-        tooltipPadding: EdgeInsets.zero,
-        tooltipMargin: 2,
-        getTooltipItem: (group, gi, rod, ri) => rod.toY <= 0
-            ? null
-            : BarTooltipItem(
-                '${rod.toY.toInt()}',
-                TextStyle(
-                    color: AppColors.ink(context),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11),
-              ),
-      ),
-    );
+  enabled: false,
+  touchTooltipData: BarTouchTooltipData(
+    getTooltipColor: (_) => Colors.transparent,
+    tooltipPadding: EdgeInsets.zero,
+    tooltipMargin: 2,
+    getTooltipItem: (group, gi, rod, ri) => rod.toY <= 0
+        ? null
+        : BarTooltipItem(
+            '${rod.toY.toInt()}',
+            TextStyle(
+              color: AppColors.ink(context),
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+            ),
+          ),
+  ),
+);
 
 /// Vertical bar chart: finished books per month (Jan..Dec).
 class _MonthlyChart extends StatelessWidget {
@@ -406,8 +463,7 @@ class _MonthlyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxV =
-        months.fold<int>(1, (m, v) => v > m ? v : m).toDouble();
+    final maxV = months.fold<int>(1, (m, v) => v > m ? v : m).toDouble();
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -417,10 +473,12 @@ class _MonthlyChart extends StatelessWidget {
         barTouchData: _valueLabels(context),
         titlesData: FlTitlesData(
           leftTitles: _countAxis(context, maxV),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -432,8 +490,9 @@ class _MonthlyChart extends StatelessWidget {
                   child: Text(
                     _monthLabels[v.toInt() % 12],
                     style: TextStyle(
-                        fontSize: 8,
-                        color: AppColors.ink(context).withValues(alpha: 0.5)),
+                      fontSize: 8,
+                      color: AppColors.ink(context).withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
               ),
@@ -494,22 +553,28 @@ class _YearMonthlyChart extends StatelessWidget {
             runSpacing: 4,
             children: [
               for (var i = 0; i < data.length; i++)
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: _colorFor(i),
-                      shape: BoxShape.circle,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _colorFor(i),
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text('${data[i].key}',
+                    const SizedBox(width: 6),
+                    Text(
+                      '${data[i].key}',
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.ink(context).withValues(alpha: 0.7))),
-                ]),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink(context).withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -527,9 +592,11 @@ class _YearMonthlyChart extends StatelessWidget {
               titlesData: FlTitlesData(
                 leftTitles: _countAxis(context, maxV),
                 rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false)),
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -546,9 +613,11 @@ class _YearMonthlyChart extends StatelessWidget {
                           child: Text(
                             _monthLabels[v.toInt()],
                             style: TextStyle(
-                                fontSize: 8,
-                                color: AppColors.ink(context)
-                                    .withValues(alpha: 0.5)),
+                              fontSize: 8,
+                              color: AppColors.ink(
+                                context,
+                              ).withValues(alpha: 0.5),
+                            ),
                           ),
                         ),
                       );
@@ -592,8 +661,9 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text,
-        style:
-            Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16));
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+    );
   }
 }

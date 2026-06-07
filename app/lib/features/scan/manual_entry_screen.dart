@@ -107,10 +107,11 @@ class _ManualEntryScreenState extends ConsumerState<ManualEntryScreen> {
                 child: ElevatedButton(
                   onPressed: _canSave ? _save : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navy,
+                    backgroundColor: AppColors.coral,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
-                        AppColors.navy.withValues(alpha: 0.3),
+                        AppColors.coral.withValues(alpha: 0.4),
+                    disabledForegroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),

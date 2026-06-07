@@ -364,8 +364,11 @@ class _BookDetailContentState extends State<_BookDetailContent> {
               child: ElevatedButton(
                 onPressed: _saving ? null : _save,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.navy,
+                  backgroundColor: AppColors.coral,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      AppColors.coral.withValues(alpha: 0.4),
+                  disabledForegroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
