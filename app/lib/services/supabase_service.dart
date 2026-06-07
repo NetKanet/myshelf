@@ -39,6 +39,15 @@ class SupabaseService {
         .map((rows) => rows.map(UserBook.fromJson).toList());
   }
 
+  /// All of the user's shelf entries with their book joined.
+  Future<List<UserBook>> getUserBooks(String userId) async {
+    final rows = await _client
+        .from('user_books')
+        .select('*, books(*)')
+        .eq('user_id', userId);
+    return (rows as List).map((r) => UserBook.fromJson(r)).toList();
+  }
+
   Future<UserBook?> getUserBookById(String userBookId) async {
     final data = await _client
         .from('user_books')

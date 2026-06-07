@@ -1,0 +1,176 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../../core/theme/app_theme.dart';
+import '../../../models/user_book.dart';
+
+class BookCard extends StatelessWidget {
+  final UserBook userBook;
+  final VoidCallback onTap;
+
+  const BookCard({super.key, required this.userBook, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final book = userBook.book;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.navy.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _Cover(coverUrl: book?.coverUrl),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book?.title ?? 'Unknown Title',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontSize: 15),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (book?.author != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      book!.author!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.navy.withValues(alpha: 0.6),
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (userBook.status == ReadingStatus.finished &&
+                      userBook.dateFinished != null) ...[
+                    const SizedBox(height: 8),
+                    _FinishedBadge(date: userBook.dateFinished!),
+                  ],
+                  if (userBook.rating != null) ...[
+                    const SizedBox(height: 6),
+                    _MiniStars(rating: userBook.rating!),
+                  ],
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.lavender),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Cover extends StatelessWidget {
+  final String? coverUrl;
+  const _Cover({this.coverUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    if (coverUrl == null) return const _Placeholder();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: CachedNetworkImage(
+        imageUrl: coverUrl!,
+        width: 56,
+        height: 80,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => const _Placeholder(),
+        errorWidget: (_, _, _) => const _Placeholder(),
+      ),
+    );
+  }
+}
+
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 80,
+      decoration: BoxDecoration(
+        color: AppColors.lavender.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.book_outlined,
+          color: AppColors.lavender, size: 28),
+    );
+  }
+}
+
+class _FinishedBadge extends StatelessWidget {
+  final DateTime date;
+  const _FinishedBadge({required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.mint.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        '✓ ${DateFormat('MMM d, yyyy').format(date)}',
+        style: const TextStyle(
+          fontSize: 11,
+          color: AppColors.mint,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniStars extends StatelessWidget {
+  final double rating;
+  const _MiniStars({required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ...List.generate(5, (i) {
+          final pos = i + 1;
+          final icon = rating >= pos
+              ? Icons.star_rounded
+              : rating >= pos - 0.5
+                  ? Icons.star_half_rounded
+                  : Icons.star_outline_rounded;
+          return Icon(icon,
+              size: 14,
+              color: rating >= pos - 0.5
+                  ? AppColors.yellow
+                  : AppColors.lavender);
+        }),
+        const SizedBox(width: 4),
+        Text(
+          rating.toStringAsFixed(rating == rating.roundToDouble() ? 0 : 1),
+          style: TextStyle(
+            fontSize: 11,
+            color: AppColors.navy.withValues(alpha: 0.5),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}

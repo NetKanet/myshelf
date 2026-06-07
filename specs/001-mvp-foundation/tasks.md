@@ -52,7 +52,7 @@ verified independently.
 - [X] T009 [P] Create `UserBook` model in `app/lib/models/user_book.dart` (ReadingStatus enum, dates, `rating` double?, `review` String?, copyWith with clear flags)
 - [X] T010 Create `SupabaseService` in `app/lib/services/supabase_service.dart` (books + user_books CRUD, watch/get by user, dedup helpers)
 - [X] T011 [P] Create `GoogleBooksService` in `app/lib/services/google_books_service.dart` per `contracts/google-books-lookup.md`
-- [ ] T012 Set up GoRouter in `app/lib/core/router/app_router.dart` with routes `/login`, `/shelf`, `/scan`, `/book/:id` and an auth-redirect guard skeleton
+- [X] T012 Set up GoRouter in `app/lib/core/router/app_router.dart` with routes `/login`, `/shelf`, `/scan`, `/book/:id` and an auth-redirect guard skeleton
 
 **Checkpoint**: Foundation ready — user stories can begin.
 
@@ -66,14 +66,14 @@ verified independently.
 
 ### Tests
 
-- [ ] T013 [P] [US1] Unit test `AuthProvider` in `app/test/features/auth/auth_provider_test.dart` (sign-in success, failure, session state, sign-out)
+- [X] T013 [P] [US1] Unit test `AuthProvider` in `app/test/features/auth/auth_provider_test.dart` (sign-in success, failure, session state, sign-out)
 
 ### Implementation
 
 - [ ] T014 [US1] **Manual setup**: configure Google OAuth per `research.md` R1 — create iOS/Android/Web OAuth client IDs in Google Cloud, enable Google provider in Supabase with the Web client ID + secret, add the reversed-client-ID URL scheme to `app/ios/Runner/Info.plist`
-- [ ] T015 [US1] Create `AuthProvider` in `app/lib/features/auth/auth_provider.dart` (google_sign_in → `supabase.auth.signInWithIdToken`, auth-state stream, signOut)
-- [ ] T016 [US1] Build Auth screen in `app/lib/features/auth/auth_screen.dart` ("Sign in with Google" button, loading, error display, mascot)
-- [ ] T017 [US1] Implement the auth redirect in `app/lib/core/router/app_router.dart` (unauthenticated → `/login`, authenticated → `/shelf`)
+- [X] T015 [US1] Create `AuthProvider` in `app/lib/features/auth/auth_provider.dart` (google_sign_in → `supabase.auth.signInWithIdToken`, auth-state stream, signOut)
+- [X] T016 [US1] Build Auth screen in `app/lib/features/auth/auth_screen.dart` ("Sign in with Google" button, loading, error display, mascot)
+- [X] T017 [US1] Implement the auth redirect in `app/lib/core/router/app_router.dart` (unauthenticated → `/login`, authenticated → `/shelf`)
 
 **Checkpoint**: Sign-in works end-to-end and gates the rest of the app.
 
@@ -87,14 +87,14 @@ verified independently.
 
 ### Tests
 
-- [ ] T018 [P] [US2] Unit test `ShelfProvider` in `app/test/features/shelf/shelf_provider_test.dart` (each chip filter, finished sort by date_finished, others by created_at, empty state)
+- [X] T018 [P] [US2] Unit test `ShelfProvider` in `app/test/features/shelf/shelf_provider_test.dart` (each chip filter, finished sort by date_finished, others by created_at, empty state)
 
 ### Implementation
 
-- [ ] T019 [US2] Create `ShelfProvider` in `app/lib/features/shelf/shelf_provider.dart` (stream the user's user_books joined with books; filter by active chip; sort per FR-008)
-- [ ] T020 [US2] Build Shelf screen in `app/lib/features/shelf/shelf_screen.dart` (filter-chip row with single active chip, book list, per-filter empty states, header with sign-out)
-- [ ] T021 [P] [US2] Create `BookCard` widget in `app/lib/features/shelf/widgets/book_card.dart` (cached cover or placeholder, title, author, finish-date badge, mini half-star rating)
-- [ ] T022 [US2] Add the scan entry point (FAB) on the Shelf that navigates to `/scan`
+- [X] T019 [US2] Create `ShelfProvider` in `app/lib/features/shelf/shelf_provider.dart` (stream the user's user_books joined with books; filter by active chip; sort per FR-008)
+- [X] T020 [US2] Build Shelf screen in `app/lib/features/shelf/shelf_screen.dart` (filter-chip row with single active chip, book list, per-filter empty states, header with sign-out)
+- [X] T021 [P] [US2] Create `BookCard` widget in `app/lib/features/shelf/widgets/book_card.dart` (cached cover or placeholder, title, author, finish-date badge, mini half-star rating)
+- [X] T022 [US2] Add the scan entry point (FAB) on the Shelf that navigates to `/scan`
 
 **Checkpoint**: Shelf is usable and reactive to data.
 
