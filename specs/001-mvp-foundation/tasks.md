@@ -159,10 +159,10 @@ verified independently.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T035 Run `flutter analyze` in `app/` — resolve to zero warnings
-- [ ] T036 Run `flutter test` in `app/` — all tests pass
+- [X] T035 Run `flutter analyze` in `app/` — resolve to zero warnings
+- [X] T036 Run `flutter test` in `app/` — all tests pass (16 passing)
 - [ ] T037 Run the 8 `quickstart.md` validation scenarios on the iOS simulator
-- [ ] T038 [P] Update `CLAUDE.md` and `docs/prd.md` to mark the MVP complete (P6 Living Documentation)
+- [~] T038 [P] Update `CLAUDE.md` and `docs/prd.md` with implementation status (P6 Living Documentation) — done for app side; public-web (US5) still pending
 
 ---
 

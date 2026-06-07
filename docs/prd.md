@@ -9,6 +9,28 @@
 
 ---
 
+## Implementation status (อัปเดต 2026-06-08)
+
+**Mobile app (Flutter) — ✅ เสร็จ + ผ่าน v2 UI polish**
+
+- Google sign-in → Supabase, auth redirect (US1) ✅
+- Combined shelf จัดกลุ่มตามปี + funnel filter sheet (All/Want to Read/Reading/Finished) (US2) ✅
+- Scan ISBN cache-first → Google Books → manual entry แบบเต็มหน้า (US3) ✅
+- Book detail: status/dates, rating + review **ทุกสถานะ**, delete (US4) ✅
+- v2 polish: bottom nav (Shelf/+/Profile), gradient covers + deco bubbles, profile dashboard
+  (headline numbers, status breakdown, กราฟแท่งรายเดือน + กราฟเส้น "By month, per year"),
+  **dark mode เต็มระบบ** (settings toggle, การ์ด/sheet/input ตามธีม, ปุ่ม Save โทนคอรัล)
+- `flutter analyze` 0 issues, `flutter test` 16 ผ่าน (T035/T036) ✅
+
+**เหลือ — public web profile (US5) + ปิดงาน**
+
+- `app_config.owner_user_id` ยังไม่ตั้ง (T032)
+- `admyhusky-dev-template/data.js` ยังไม่ wire เข้า view `public_finished_shelf` (T033)
+- ตรวจ privacy guarantees ของ view (T034)
+- รัน 8 quickstart scenario บน simulator (T037)
+
+---
+
 ## 0. Notes for the implementer (อ่านก่อน)
 
 - โปรเจกต์นี้มีอยู่แล้ว ใช้ **Supabase เป็น backend หลัก** (Postgres + Auth) ไม่มี server แยก

@@ -21,6 +21,12 @@ site shows finished books live (cover/title/author/finish-date/rating; never the
 **Stack (fixed):** Flutter + Riverpod + GoRouter + Supabase (Postgres + Auth + RLS).
 Mobile app lives in `app/`. Cover images = URL only. Stay in free tier.
 
+**Status (2026-06-08):** Mobile app done (US1–US4) + v2 UI polish (bottom nav, profile
+dashboard with charts, full dark mode). `flutter analyze` 0 issues, `flutter test` 16 pass.
+**Remaining:** public web profile (US5 — `app_config.owner_user_id`, wire
+`admyhusky-dev-template/data.js` to `public_finished_shelf`, verify privacy) + 8 quickstart
+scenarios on simulator. See [docs/prd.md](docs/prd.md) "Implementation status".
+
 **Spec Kit flow:** `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` →
 `/speckit-implement`. Each feature on its own `NNN-name` branch.
 <!-- SPECKIT END -->
