@@ -27,7 +27,7 @@ class ShelfScreen extends ConsumerWidget {
               filtering
                   ? Icons.filter_list_rounded
                   : Icons.filter_list_outlined,
-              color: filtering ? AppColors.navy : AppColors.navy,
+              color: AppColors.ink(context),
             ),
             onPressed: () => _showFilterSheet(context, ref, filter),
           ),
@@ -77,7 +77,7 @@ class ShelfScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, ShelfFilter current) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -96,14 +96,14 @@ class ShelfScreen extends ConsumerWidget {
               final selected = f == current;
               return ListTile(
                 leading: Icon(_iconFor(f),
-                    color: selected ? AppColors.navy : AppColors.lavender),
+                    color: selected ? AppColors.ink(context) : AppColors.lavender),
                 title: Text(f.label,
                     style: TextStyle(
                         fontWeight:
                             selected ? FontWeight.w700 : FontWeight.w500,
-                        color: AppColors.navy)),
+                        color: AppColors.ink(context))),
                 trailing: selected
-                    ? const Icon(Icons.check_rounded, color: AppColors.navy)
+                    ? Icon(Icons.check_rounded, color: AppColors.ink(context))
                     : null,
                 onTap: () {
                   ref.read(shelfFilterProvider.notifier).state = f;

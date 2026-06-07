@@ -26,7 +26,7 @@ class BookCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -64,7 +64,7 @@ class BookCard extends StatelessWidget {
                     Text(
                       book!.author!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.navy.withValues(alpha: 0.6),
+                            color: AppColors.ink(context).withValues(alpha: 0.6),
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -150,7 +150,7 @@ class _MiniStars extends StatelessWidget {
           rating.toStringAsFixed(rating == rating.roundToDouble() ? 0 : 1),
           style: TextStyle(
             fontSize: 11,
-            color: AppColors.navy.withValues(alpha: 0.5),
+            color: AppColors.ink(context).withValues(alpha: 0.5),
             fontWeight: FontWeight.w600,
           ),
         ),

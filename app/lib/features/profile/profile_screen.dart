@@ -225,7 +225,7 @@ class _StatusBreakdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -273,7 +273,7 @@ class _Bar extends StatelessWidget {
           child: Text(label,
               style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.navy.withValues(alpha: 0.7))),
+                  color: AppColors.ink(context).withValues(alpha: 0.7))),
         ),
         Expanded(
           child: ClipRRect(
@@ -296,8 +296,8 @@ class _Bar extends StatelessWidget {
           width: 22,
           child: Text('$value',
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w800, color: AppColors.navy)),
+              style: TextStyle(
+                  fontWeight: FontWeight.w800, color: AppColors.ink(context))),
         ),
       ],
     );
@@ -314,7 +314,7 @@ class _MiniMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -324,7 +324,7 @@ class _MiniMetric extends StatelessWidget {
           Text(label,
               style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.navy.withValues(alpha: 0.5))),
+                  color: AppColors.ink(context).withValues(alpha: 0.5))),
         ],
       ),
     );
@@ -338,8 +338,10 @@ class _BigNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(value,
-        style: const TextStyle(
-            fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.navy));
+        style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: AppColors.ink(context)));
   }
 }
 
@@ -352,7 +354,7 @@ class _ChartCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,
@@ -361,11 +363,12 @@ class _ChartCard extends StatelessWidget {
 }
 
 const _monthLabels = [
-  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
 /// Left axis showing whole-number book counts.
-AxisTitles _countAxis(double maxV) => AxisTitles(
+AxisTitles _countAxis(BuildContext context, double maxV) => AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
         reservedSize: 24,
@@ -374,13 +377,14 @@ AxisTitles _countAxis(double maxV) => AxisTitles(
           if (v % 1 != 0 || v > maxV) return const SizedBox();
           return Text('${v.toInt()}',
               style: TextStyle(
-                  fontSize: 10, color: AppColors.navy.withValues(alpha: 0.4)));
+                  fontSize: 10,
+                  color: AppColors.ink(context).withValues(alpha: 0.4)));
         },
       ),
     );
 
 /// Always-on value labels above each bar (so the chart shows numbers too).
-BarTouchData _valueLabels() => BarTouchData(
+BarTouchData _valueLabels(BuildContext context) => BarTouchData(
       enabled: false,
       touchTooltipData: BarTouchTooltipData(
         getTooltipColor: (_) => Colors.transparent,
@@ -390,8 +394,8 @@ BarTouchData _valueLabels() => BarTouchData(
             ? null
             : BarTooltipItem(
                 '${rod.toY.toInt()}',
-                const TextStyle(
-                    color: AppColors.navy,
+                TextStyle(
+                    color: AppColors.ink(context),
                     fontWeight: FontWeight.w700,
                     fontSize: 11),
               ),
@@ -413,9 +417,9 @@ class _MonthlyChart extends StatelessWidget {
         maxY: maxV + 1,
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        barTouchData: _valueLabels(),
+        barTouchData: _valueLabels(context),
         titlesData: FlTitlesData(
-          leftTitles: _countAxis(maxV),
+          leftTitles: _countAxis(context, maxV),
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles:
@@ -423,11 +427,18 @@ class _MonthlyChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              getTitlesWidget: (v, _) => Text(
-                _monthLabels[v.toInt() % 12],
-                style: TextStyle(
-                    fontSize: 10,
-                    color: AppColors.navy.withValues(alpha: 0.5)),
+              reservedSize: 28,
+              getTitlesWidget: (v, _) => Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Transform.rotate(
+                  angle: -0.6,
+                  child: Text(
+                    _monthLabels[v.toInt() % 12],
+                    style: TextStyle(
+                        fontSize: 8,
+                        color: AppColors.ink(context).withValues(alpha: 0.5)),
+                  ),
+                ),
               ),
             ),
           ),
@@ -452,7 +463,7 @@ class _MonthlyChart extends StatelessWidget {
   }
 }
 
-/// Vertical bar chart: finished books per year.
+/// Line chart: finished books per year.
 class _YearlyChart extends StatelessWidget {
   final List<MapEntry<int, int>> data; // newest first
   const _YearlyChart({required this.data});
@@ -462,15 +473,17 @@ class _YearlyChart extends StatelessWidget {
     final ordered = data.reversed.toList(); // oldest → newest on x-axis
     final maxV =
         ordered.fold<int>(1, (m, e) => e.value > m ? e.value : m).toDouble();
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
+    return LineChart(
+      LineChartData(
+        minY: 0,
         maxY: maxV + 1,
+        minX: 0,
+        maxX: (ordered.length - 1).toDouble(),
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        barTouchData: _valueLabels(),
+        lineTouchData: const LineTouchData(enabled: false),
         titlesData: FlTitlesData(
-          leftTitles: _countAxis(maxV),
+          leftTitles: _countAxis(context, maxV),
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles:
@@ -478,31 +491,43 @@ class _YearlyChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              interval: 1,
               getTitlesWidget: (v, _) {
                 final i = v.toInt();
-                if (i < 0 || i >= ordered.length) return const SizedBox();
+                if (i < 0 || i >= ordered.length || v % 1 != 0) {
+                  return const SizedBox();
+                }
                 return Text('${ordered[i].key}',
                     style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.navy.withValues(alpha: 0.5)));
+                        color: AppColors.ink(context).withValues(alpha: 0.5)));
               },
             ),
           ),
         ),
-        barGroups: [
-          for (var i = 0; i < ordered.length; i++)
-            BarChartGroupData(
-              x: i,
-              showingTooltipIndicators: ordered[i].value > 0 ? [0] : [],
-              barRods: [
-                BarChartRodData(
-                  toY: ordered[i].value.toDouble(),
-                  color: AppColors.yellow,
-                  width: 18,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+        lineBarsData: [
+          LineChartBarData(
+            spots: [
+              for (var i = 0; i < ordered.length; i++)
+                FlSpot(i.toDouble(), ordered[i].value.toDouble()),
+            ],
+            isCurved: true,
+            color: AppColors.yellow,
+            barWidth: 3,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
+                radius: 4,
+                color: AppColors.yellow,
+                strokeWidth: 2,
+                strokeColor: AppColors.surface(context),
+              ),
             ),
+            belowBarData: BarAreaData(
+              show: true,
+              color: AppColors.yellow.withValues(alpha: 0.15),
+            ),
+          ),
         ],
       ),
     );

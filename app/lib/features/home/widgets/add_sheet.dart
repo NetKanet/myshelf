@@ -8,7 +8,7 @@ enum AddAction { scan, manual }
 Future<AddAction?> showAddSheet(BuildContext context) {
   return showModalBottomSheet<AddAction>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.surface(context),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -57,10 +57,10 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.navy),
+      leading: Icon(icon, color: AppColors.ink(context)),
       title: Text(label,
-          style:
-              const TextStyle(fontWeight: FontWeight.w600, color: AppColors.navy)),
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: AppColors.ink(context))),
       onTap: onTap,
     );
   }

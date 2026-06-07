@@ -74,7 +74,7 @@ class _ManualEntryScreenState extends ConsumerState<ManualEntryScreen> {
                       autofocus: true,
                       textCapitalization: TextCapitalization.words,
                       onChanged: (_) => setState(() {}),
-                      decoration: _input('Book title'),
+                      decoration: _input(context, 'Book title'),
                     ),
                     const SizedBox(height: 24),
                     Text('Author',
@@ -86,7 +86,7 @@ class _ManualEntryScreenState extends ConsumerState<ManualEntryScreen> {
                     TextField(
                       controller: _author,
                       textCapitalization: TextCapitalization.words,
-                      decoration: _input('Author (optional)'),
+                      decoration: _input(context, 'Author (optional)'),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -94,7 +94,7 @@ class _ManualEntryScreenState extends ConsumerState<ManualEntryScreen> {
                       'next screen.',
                       style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.navy.withValues(alpha: 0.5)),
+                          color: AppColors.ink(context).withValues(alpha: 0.5)),
                     ),
                   ],
                 ),
@@ -133,10 +133,10 @@ class _ManualEntryScreenState extends ConsumerState<ManualEntryScreen> {
     );
   }
 
-  InputDecoration _input(String hint) => InputDecoration(
+  InputDecoration _input(BuildContext context, String hint) => InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.surface(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.lavender),

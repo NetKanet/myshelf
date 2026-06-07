@@ -245,7 +245,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                                       .textTheme
                                       .bodyMedium
                                       ?.copyWith(
-                                          color: AppColors.navy
+                                          color: AppColors.ink(context)
                                               .withValues(alpha: 0.6))),
                             ],
                             if (book?.publisher != null) ...[
@@ -322,7 +322,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                     decoration: InputDecoration(
                       hintText: 'Your thoughts about this book…',
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: AppColors.surface(context),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide:
@@ -349,7 +349,7 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                       maxLines: _descExpanded ? null : 3,
                       overflow: _descExpanded ? null : TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.navy.withValues(alpha: 0.7)),
+                          color: AppColors.ink(context).withValues(alpha: 0.7)),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -407,12 +407,12 @@ class _Chip extends StatelessWidget {
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         if (icon != null) ...[
-          Icon(icon, size: 12, color: AppColors.navy.withValues(alpha: 0.5)),
+          Icon(icon, size: 12, color: AppColors.ink(context).withValues(alpha: 0.5)),
           const SizedBox(width: 4),
         ],
         Text(label,
             style: TextStyle(
-                fontSize: 12, color: AppColors.navy.withValues(alpha: 0.5))),
+                fontSize: 12, color: AppColors.ink(context).withValues(alpha: 0.5))),
       ]),
     );
   }
@@ -437,7 +437,7 @@ class _StatusSelector extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.yellow : Colors.white,
+                  color: active ? AppColors.yellow : AppColors.surface(context),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                       color: active ? AppColors.yellow : AppColors.lavender,
@@ -451,7 +451,7 @@ class _StatusSelector extends StatelessWidget {
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     color: active
                         ? AppColors.navy
-                        : AppColors.navy.withValues(alpha: 0.5),
+                        : AppColors.ink(context).withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -491,13 +491,13 @@ class _DatePicker extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.lavender),
         ),
         child: Row(children: [
-          const Icon(Icons.calendar_today_outlined,
-              size: 18, color: AppColors.navy),
+          Icon(Icons.calendar_today_outlined,
+              size: 18, color: AppColors.ink(context)),
           const SizedBox(width: 10),
           Text(
             date != null
@@ -505,8 +505,8 @@ class _DatePicker extends StatelessWidget {
                 : 'Pick a date',
             style: TextStyle(
                 color: date != null
-                    ? AppColors.navy
-                    : AppColors.navy.withValues(alpha: 0.4)),
+                    ? AppColors.ink(context)
+                    : AppColors.ink(context).withValues(alpha: 0.4)),
           ),
         ]),
       ),

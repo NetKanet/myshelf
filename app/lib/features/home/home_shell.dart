@@ -64,7 +64,7 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
@@ -151,7 +151,7 @@ class _NavIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        active ? AppColors.navy : AppColors.navy.withValues(alpha: 0.30);
+        active ? AppColors.ink(context) : AppColors.ink(context).withValues(alpha: 0.30);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
