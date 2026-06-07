@@ -53,27 +53,35 @@ List<UserBook> filterShelf(List<UserBook> books, ShelfFilter filter) {
   }
 }
 
-/// A section header in the grouped shelf list.
+/// A section header in the grouped shelf list (title + how many books in it).
 class ShelfSection {
   final String title;
-  const ShelfSection(this.title);
+  final int count;
+  const ShelfSection(this.title, this.count);
 }
+
+String _sectionKey(UserBook b) => switch (b.status) {
+      ReadingStatus.finished => '${(b.dateFinished ?? b.createdAt).year}',
+      ReadingStatus.reading => 'Reading',
+      ReadingStatus.wantToRead => 'Want to Read',
+    };
 
 /// Turns a sorted book list into a flat list of [ShelfSection] headers and
 /// [UserBook]s, grouped by finish year (finished books) then by status.
 /// Example: "2026", book, book, "2025", book, "Reading", book, "Want to Read".
 List<Object> groupShelf(List<UserBook> sortedBooks) {
+  // Count per section first (sections are contiguous in the sorted list).
+  final counts = <String, int>{};
+  for (final b in sortedBooks) {
+    final k = _sectionKey(b);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
   final out = <Object>[];
   String? current;
   for (final b in sortedBooks) {
-    final key = switch (b.status) {
-      ReadingStatus.finished =>
-        '${(b.dateFinished ?? b.createdAt).year}',
-      ReadingStatus.reading => 'Reading',
-      ReadingStatus.wantToRead => 'Want to Read',
-    };
+    final key = _sectionKey(b);
     if (key != current) {
-      out.add(ShelfSection(key));
+      out.add(ShelfSection(key, counts[key]!));
       current = key;
     }
     out.add(b);

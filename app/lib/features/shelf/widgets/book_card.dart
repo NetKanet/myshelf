@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/book_cover.dart';
 import '../../../models/user_book.dart';
 
 class BookCard extends StatelessWidget {
@@ -38,7 +38,13 @@ class BookCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _Cover(coverUrl: book?.coverUrl),
+            BookCover(
+              coverUrl: book?.coverUrl,
+              seed: book?.id ?? userBook.id,
+              width: 56,
+              height: 80,
+              radius: 8,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -83,43 +89,6 @@ class BookCard extends StatelessWidget {
   }
 }
 
-class _Cover extends StatelessWidget {
-  final String? coverUrl;
-  const _Cover({this.coverUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    if (coverUrl == null) return const _Placeholder();
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: CachedNetworkImage(
-        imageUrl: coverUrl!,
-        width: 56,
-        height: 80,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => const _Placeholder(),
-        errorWidget: (_, _, _) => const _Placeholder(),
-      ),
-    );
-  }
-}
-
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.lavender.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Icon(Icons.book_outlined,
-          color: AppColors.lavender, size: 28),
-    );
-  }
-}
 
 class _StatusBadge extends StatelessWidget {
   final UserBook userBook;

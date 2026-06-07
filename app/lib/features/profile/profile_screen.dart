@@ -1,9 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/deco_background.dart';
 import '../auth/auth_provider.dart';
 import 'profile_provider.dart';
 
@@ -29,94 +29,72 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: statsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (s) => ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            _Header(name: name, email: user?.email),
-            const SizedBox(height: 20),
-            _StatusBreakdown(s: s),
-            const SizedBox(height: 16),
-            Row(
+      body: DecoBackground(
+        child: statsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Error: $e')),
+          data: (s) {
+            final thisYear = s.finishedByYear
+                .where((e) => e.key == DateTime.now().year)
+                .fold<int>(0, (a, e) => a + e.value);
+            return ListView(
+              padding: const EdgeInsets.all(20),
               children: [
-                Expanded(
-                  child: _MiniMetric(
-                    label: 'Avg rating',
-                    child: s.avgRating == null
-                        ? const Text('—',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.navy))
-                        : _StarsValue(value: s.avgRating!),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MiniMetric(
-                    label: 'Reviews',
-                    child: Text('${s.reviewed}',
-                        style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.navy)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            if (s.finished > 0) ...[
-              _SectionTitle('Finished in ${s.monthlyYear}'),
-              const SizedBox(height: 12),
-              _ChartCard(
-                child: SizedBox(
-                  height: 160,
-                  child: _MonthlyChart(months: s.finishedByMonth),
-                ),
-              ),
-              const SizedBox(height: 20),
-              if (s.finishedByYear.length > 1) ...[
-                _SectionTitle('Finished per year'),
-                const SizedBox(height: 12),
-                _ChartCard(
-                  child: SizedBox(
-                    height: 160,
-                    child: _YearlyChart(data: s.finishedByYear),
-                  ),
+                _Header(name: name, email: user?.email),
+                const SizedBox(height: 20),
+                // Headline numbers (reading progress at a glance).
+                Row(
+                  children: [
+                    Expanded(
+                        child: _MiniMetric(
+                            label: 'Books finished',
+                            child: _BigNumber('${s.finished}'))),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: _MiniMetric(
+                            label: 'This year',
+                            child: _BigNumber('$thisYear'))),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _MiniMetric(
+                        label: 'Avg rating',
+                        child: s.avgRating == null
+                            ? _BigNumber('—')
+                            : _BigNumber(s.avgRating!.toStringAsFixed(1)),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
-              ],
-            ],
-            const SizedBox(height: 4),
-            _SectionTitle('Recent reviews'),
-            const SizedBox(height: 12),
-            if (s.recentReviews.isEmpty)
-              Text('No reviews yet.',
-                  style:
-                      TextStyle(color: AppColors.navy.withValues(alpha: 0.5)))
-            else
-              ...s.recentReviews.map((ub) => Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      onTap: () => context.push('/book/${ub.id}'),
-                      title: Text(ub.book?.title ?? 'Unknown',
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: Text(ub.review ?? '',
-                          maxLines: 2, overflow: TextOverflow.ellipsis),
-                      trailing: ub.rating != null
-                          ? Text('${ub.rating}★',
-                              style: const TextStyle(color: AppColors.navy))
-                          : null,
+                _SectionTitle('Currently'),
+                const SizedBox(height: 12),
+                _StatusBreakdown(s: s),
+                if (s.finished > 0) ...[
+                  const SizedBox(height: 24),
+                  _SectionTitle('Finished in ${s.monthlyYear}'),
+                  const SizedBox(height: 12),
+                  _ChartCard(
+                    child: SizedBox(
+                      height: 170,
+                      child: _MonthlyChart(months: s.finishedByMonth),
                     ),
-                  )),
-          ],
+                  ),
+                  if (s.finishedByYear.length > 1) ...[
+                    const SizedBox(height: 20),
+                    _SectionTitle('Finished per year'),
+                    const SizedBox(height: 12),
+                    _ChartCard(
+                      child: SizedBox(
+                        height: 170,
+                        child: _YearlyChart(data: s.finishedByYear),
+                      ),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 24),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -278,30 +256,15 @@ class _MiniMetric extends StatelessWidget {
   }
 }
 
-class _StarsValue extends StatelessWidget {
-  final double value;
-  const _StarsValue({required this.value});
+class _BigNumber extends StatelessWidget {
+  final String value;
+  const _BigNumber(this.value);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ...List.generate(5, (i) {
-          final pos = i + 1;
-          final icon = value >= pos
-              ? Icons.star_rounded
-              : value >= pos - 0.5
-                  ? Icons.star_half_rounded
-                  : Icons.star_outline_rounded;
-          return Icon(icon, size: 16, color: AppColors.yellow);
-        }),
-        const SizedBox(width: 6),
-        Text(value.toStringAsFixed(1),
-            style: const TextStyle(
-                fontWeight: FontWeight.w800, color: AppColors.navy)),
-      ],
-    );
+    return Text(value,
+        style: const TextStyle(
+            fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.navy));
   }
 }
 
@@ -326,6 +289,25 @@ const _monthLabels = [
   'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'
 ];
 
+/// Always-on value labels above each bar (so the chart shows numbers too).
+BarTouchData _valueLabels() => BarTouchData(
+      enabled: false,
+      touchTooltipData: BarTouchTooltipData(
+        getTooltipColor: (_) => Colors.transparent,
+        tooltipPadding: EdgeInsets.zero,
+        tooltipMargin: 2,
+        getTooltipItem: (group, gi, rod, ri) => rod.toY <= 0
+            ? null
+            : BarTooltipItem(
+                '${rod.toY.toInt()}',
+                const TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11),
+              ),
+      ),
+    );
+
 /// Vertical bar chart: finished books per month (Jan..Dec).
 class _MonthlyChart extends StatelessWidget {
   final List<int> months; // length 12
@@ -341,7 +323,7 @@ class _MonthlyChart extends StatelessWidget {
         maxY: maxV + 1,
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        barTouchData: BarTouchData(enabled: false),
+        barTouchData: _valueLabels(),
         titlesData: FlTitlesData(
           leftTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -363,14 +345,18 @@ class _MonthlyChart extends StatelessWidget {
         ),
         barGroups: [
           for (var i = 0; i < 12; i++)
-            BarChartGroupData(x: i, barRods: [
-              BarChartRodData(
-                toY: months[i].toDouble(),
-                color: AppColors.mint,
-                width: 12,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ]),
+            BarChartGroupData(
+              x: i,
+              showingTooltipIndicators: months[i] > 0 ? [0] : [],
+              barRods: [
+                BarChartRodData(
+                  toY: months[i].toDouble(),
+                  color: AppColors.mint,
+                  width: 12,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -393,7 +379,7 @@ class _YearlyChart extends StatelessWidget {
         maxY: maxV + 1,
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
-        barTouchData: BarTouchData(enabled: false),
+        barTouchData: _valueLabels(),
         titlesData: FlTitlesData(
           leftTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -417,14 +403,18 @@ class _YearlyChart extends StatelessWidget {
         ),
         barGroups: [
           for (var i = 0; i < ordered.length; i++)
-            BarChartGroupData(x: i, barRods: [
-              BarChartRodData(
-                toY: ordered[i].value.toDouble(),
-                color: AppColors.yellow,
-                width: 18,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ]),
+            BarChartGroupData(
+              x: i,
+              showingTooltipIndicators: ordered[i].value > 0 ? [0] : [],
+              barRods: [
+                BarChartRodData(
+                  toY: ordered[i].value.toDouble(),
+                  color: AppColors.yellow,
+                  width: 18,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
         ],
       ),
     );

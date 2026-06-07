@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/deco_background.dart';
 import 'auth_provider.dart';
 import 'widgets/google_logo.dart';
 
@@ -16,7 +17,8 @@ class AuthScreen extends ConsumerWidget {
     final error = state.hasError ? state.error.toString() : null;
 
     return Scaffold(
-      body: SafeArea(
+      body: DecoBackground(
+        child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
@@ -87,6 +89,7 @@ class AuthScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

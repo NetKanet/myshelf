@@ -1,10 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/book_cover.dart';
+import '../../core/widgets/deco_background.dart';
 import '../../models/user_book.dart';
 import '../shelf/shelf_provider.dart';
 import 'book_detail_provider.dart';
@@ -29,7 +30,8 @@ class BookDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: state.when(
+      body: DecoBackground(
+        child: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (userBook) {
@@ -59,6 +61,7 @@ class BookDetailScreen extends ConsumerWidget {
             },
           );
         },
+        ),
       ),
     );
   }
@@ -220,7 +223,13 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _Cover(coverUrl: book?.coverUrl),
+                      BookCover(
+                        coverUrl: book?.coverUrl,
+                        seed: book?.id ?? widget.userBook.bookId,
+                        width: 110,
+                        height: 160,
+                        radius: 12,
+                      ),
                       const SizedBox(width: 20),
                       Expanded(
                         child: Column(
@@ -256,6 +265,25 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                                     icon: Icons.menu_book_outlined,
                                     label: '${book!.pageCount} pages'),
                             ]),
+                            const SizedBox(height: 12),
+                            // Rating sits next to the cover (any status).
+                            _StarRating(
+                                rating: _rating,
+                                size: 26,
+                                onChanged: (r) =>
+                                    setState(() => _rating = r)),
+                            if (_rating != null)
+                              GestureDetector(
+                                onTap: () => setState(() => _rating = null),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text('Clear rating',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.navy
+                                              .withValues(alpha: 0.5))),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -280,40 +308,26 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                     _DatePicker(
                         date: _dateFinished,
                         onChanged: (d) => setState(() => _dateFinished = d)),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _label(context, 'Rating'),
-                        if (_rating != null)
-                          TextButton(
-                              onPressed: () => setState(() => _rating = null),
-                              child: const Text('Clear')),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _StarRating(
-                        rating: _rating,
-                        onChanged: (r) => setState(() => _rating = r)),
-                    const SizedBox(height: 24),
-                    _label(context, 'Review'),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _review,
-                      maxLines: 4,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: 'Your thoughts about this book…',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: AppColors.lavender),
-                        ),
+                  ],
+                  // Review is available for any status.
+                  const SizedBox(height: 24),
+                  _label(context, 'Review'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _review,
+                    maxLines: 4,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: 'Your thoughts about this book…',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: AppColors.lavender),
                       ),
                     ),
-                  ],
+                  ),
                   if (book?.description != null &&
                       book!.description!.isNotEmpty) ...[
                     const SizedBox(height: 28),
@@ -398,44 +412,6 @@ class _Chip extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12, color: AppColors.navy.withValues(alpha: 0.5))),
       ]),
-    );
-  }
-}
-
-class _Cover extends StatelessWidget {
-  final String? coverUrl;
-  const _Cover({this.coverUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    if (coverUrl == null) return const _Placeholder();
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: CachedNetworkImage(
-        imageUrl: coverUrl!,
-        width: 110,
-        height: 160,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => const _Placeholder(),
-        errorWidget: (_, _, _) => const _Placeholder(),
-      ),
-    );
-  }
-}
-
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 110,
-      height: 160,
-      decoration: BoxDecoration(
-        color: AppColors.lavender.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child:
-          const Icon(Icons.book_outlined, color: AppColors.lavender, size: 40),
     );
   }
 }
@@ -531,9 +507,8 @@ class _DatePicker extends StatelessWidget {
 class _StarRating extends StatelessWidget {
   final double? rating;
   final void Function(double) onChanged;
-  const _StarRating({this.rating, required this.onChanged});
-
-  static const double _size = 36;
+  final double size;
+  const _StarRating({this.rating, required this.onChanged, this.size = 36});
 
   @override
   Widget build(BuildContext context) {
@@ -549,13 +524,13 @@ class _StarRating extends StatelessWidget {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapDown: (d) {
-            final leftHalf = d.localPosition.dx < _size / 2;
+            final leftHalf = d.localPosition.dx < size / 2;
             onChanged(leftHalf ? pos - 0.5 : pos.toDouble());
           },
           child: Padding(
-            padding: const EdgeInsets.only(right: 4),
+            padding: const EdgeInsets.only(right: 3),
             child: Icon(icon,
-                size: _size,
+                size: size,
                 color: value >= pos - 0.5
                     ? AppColors.yellow
                     : AppColors.lavender),

@@ -90,8 +90,8 @@ Net opens a book to see its full information and to record where he is with it: 
 3. **Given** a change to "Reading" or "Finished", **When** there is no start date yet, **Then** the start date auto-fills with today and remains editable.
 4. **Given** a change to "Finished", **When** it is set, **Then** the finish date auto-fills with today and remains editable.
 5. **Given** a change back to "Want to Read", **When** it is set, **Then** start and finish dates are cleared.
-6. **Given** a finished book, **When** Net sets a rating, **Then** ratings of whole and half values (0.5–5) can be chosen and cleared. Rating and review are available only when status is Finished.
-7. **Given** a finished book, **When** Net writes or edits a review and saves, **Then** the review is stored and shown on reopen. The review field is available only when status is Finished.
+6. **Given** any book, **When** Net sets a rating, **Then** ratings of whole and half values (0.5–5) can be chosen and cleared, regardless of status.
+7. **Given** any book, **When** Net writes or edits a review and saves, **Then** the review is stored and shown on reopen, regardless of status.
 8. **Given** unsaved edits, **When** Net leaves the screen, **Then** he is warned before losing them.
 9. **Given** a finished book with a rating and review, **When** Net changes it back to Reading or Want to Read, **Then** the rating/review editor is hidden but the values are kept, and they reappear unchanged if the book is set to Finished again.
 10. **Given** a book, **When** Net deletes it after confirming, **Then** it is removed from his shelf.
@@ -161,8 +161,8 @@ Visitors to Net's public profile site see the books he has finished, updated aut
 - **FR-019**: The system MUST show cover (or placeholder), title, author, publisher, year, page count, and a collapsible description.
 - **FR-020**: The system MUST allow status changes in any direction among Want to Read, Reading, Finished.
 - **FR-021**: Changing to Reading or Finished MUST auto-fill the start date (if empty); changing to Finished MUST auto-fill the finish date; changing to Want to Read MUST clear both dates. All dates MUST remain editable. A status change MUST NOT clear an existing rating or review — they are retained and simply hidden from editing while the status is not Finished.
-- **FR-022**: The system MUST allow setting and clearing a rating in half-star steps from 0.5 to 5, available only when the book's status is Finished.
-- **FR-023**: The system MUST allow writing, editing, and clearing a free-text review, available only when the book's status is Finished.
+- **FR-022**: The system MUST allow setting and clearing a rating in half-star steps from 0.5 to 5, available for any status (revised 2026-06-08 from finished-only).
+- **FR-023**: The system MUST allow writing, editing, and clearing a free-text review, available for any status (revised 2026-06-08 from finished-only).
 - **FR-024**: The system MUST warn before discarding unsaved edits.
 - **FR-025**: The system MUST allow deleting a book from the shelf after confirmation.
 

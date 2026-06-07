@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/deco_background.dart';
 import '../../models/user_book.dart';
 import 'shelf_provider.dart';
 import 'widgets/book_card.dart';
@@ -32,7 +33,8 @@ class ShelfScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
+      body: DecoBackground(
+        child: Column(
         children: [
           if (filtering) _ActiveFilter(filter: filter),
           Expanded(
@@ -51,14 +53,12 @@ class ShelfScreen extends ConsumerWidget {
                     itemBuilder: (_, i) {
                       final item = items[i];
                       if (item is ShelfSection) {
-                        return _SectionHeader(title: item.title);
+                        return _SectionHeader(
+                            title: item.title, count: item.count);
                       }
                       final ub = item as UserBook;
                       return BookCard(
                         userBook: ub,
-                        // Status is implied by the section header, so hide the
-                        // per-card badge.
-                        showStatus: false,
                         onTap: () => context.push('/book/${ub.id}'),
                       );
                     },
@@ -68,6 +68,7 @@ class ShelfScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -154,7 +155,8 @@ class _ActiveFilter extends ConsumerWidget {
 /// Year / status section divider in the shelf list.
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final int count;
+  const _SectionHeader({required this.title, required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +170,15 @@ class _SectionHeader extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w800,
               color: AppColors.navy,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.navy.withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(width: 12),
