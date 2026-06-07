@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,12 +67,29 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-            if (s.finishedByYear.isNotEmpty) ...[
-              _SectionTitle('Finished per year'),
+            if (s.finished > 0) ...[
+              _SectionTitle('Finished in ${s.monthlyYear}'),
               const SizedBox(height: 12),
-              _YearChart(data: s.finishedByYear),
-              const SizedBox(height: 24),
+              _ChartCard(
+                child: SizedBox(
+                  height: 160,
+                  child: _MonthlyChart(months: s.finishedByMonth),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (s.finishedByYear.length > 1) ...[
+                _SectionTitle('Finished per year'),
+                const SizedBox(height: 12),
+                _ChartCard(
+                  child: SizedBox(
+                    height: 160,
+                    child: _YearlyChart(data: s.finishedByYear),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ],
+            const SizedBox(height: 4),
             _SectionTitle('Recent reviews'),
             const SizedBox(height: 12),
             if (s.recentReviews.isEmpty)
@@ -287,30 +305,126 @@ class _StarsValue extends StatelessWidget {
   }
 }
 
-/// Simple horizontal bar chart of finished books per year.
-class _YearChart extends StatelessWidget {
-  final List<MapEntry<int, int>> data;
-  const _YearChart({required this.data});
+class _ChartCard extends StatelessWidget {
+  final Widget child;
+  const _ChartCard({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final max = data.map((e) => e.value).reduce((a, b) => a > b ? a : b);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        children: [
-          for (final e in data) ...[
-            _Bar(
-                label: '${e.key}',
-                value: e.value,
-                max: max,
-                color: AppColors.yellow),
-            if (e != data.last) const SizedBox(height: 12),
-          ],
+      child: child,
+    );
+  }
+}
+
+const _monthLabels = [
+  'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'
+];
+
+/// Vertical bar chart: finished books per month (Jan..Dec).
+class _MonthlyChart extends StatelessWidget {
+  final List<int> months; // length 12
+  const _MonthlyChart({required this.months});
+
+  @override
+  Widget build(BuildContext context) {
+    final maxV =
+        months.fold<int>(1, (m, v) => v > m ? v : m).toDouble();
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxV + 1,
+        borderData: FlBorderData(show: false),
+        gridData: const FlGridData(show: false),
+        barTouchData: BarTouchData(enabled: false),
+        titlesData: FlTitlesData(
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (v, _) => Text(
+                _monthLabels[v.toInt() % 12],
+                style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.navy.withValues(alpha: 0.5)),
+              ),
+            ),
+          ),
+        ),
+        barGroups: [
+          for (var i = 0; i < 12; i++)
+            BarChartGroupData(x: i, barRods: [
+              BarChartRodData(
+                toY: months[i].toDouble(),
+                color: AppColors.mint,
+                width: 12,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ]),
+        ],
+      ),
+    );
+  }
+}
+
+/// Vertical bar chart: finished books per year.
+class _YearlyChart extends StatelessWidget {
+  final List<MapEntry<int, int>> data; // newest first
+  const _YearlyChart({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final ordered = data.reversed.toList(); // oldest → newest on x-axis
+    final maxV =
+        ordered.fold<int>(1, (m, e) => e.value > m ? e.value : m).toDouble();
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxV + 1,
+        borderData: FlBorderData(show: false),
+        gridData: const FlGridData(show: false),
+        barTouchData: BarTouchData(enabled: false),
+        titlesData: FlTitlesData(
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (v, _) {
+                final i = v.toInt();
+                if (i < 0 || i >= ordered.length) return const SizedBox();
+                return Text('${ordered[i].key}',
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: AppColors.navy.withValues(alpha: 0.5)));
+              },
+            ),
+          ),
+        ),
+        barGroups: [
+          for (var i = 0; i < ordered.length; i++)
+            BarChartGroupData(x: i, barRods: [
+              BarChartRodData(
+                toY: ordered[i].value.toDouble(),
+                color: AppColors.yellow,
+                width: 18,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ]),
         ],
       ),
     );

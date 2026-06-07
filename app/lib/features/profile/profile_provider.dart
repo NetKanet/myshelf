@@ -15,6 +15,10 @@ class ProfileStats {
   /// Finished-book counts per year, sorted newest year first.
   final List<MapEntry<int, int>> finishedByYear;
 
+  /// The year shown in the monthly chart and its 12 month counts (Jan..Dec).
+  final int monthlyYear;
+  final List<int> finishedByMonth;
+
   const ProfileStats({
     required this.reading,
     required this.finished,
@@ -24,6 +28,8 @@ class ProfileStats {
     required this.avgRating,
     required this.recentReviews,
     required this.finishedByYear,
+    required this.monthlyYear,
+    required this.finishedByMonth,
   });
 
   int get total => reading + finished + wantToRead;
@@ -48,6 +54,18 @@ ProfileStats computeStats(List<UserBook> books) {
   final byYearSorted = byYear.entries.toList()
     ..sort((a, b) => b.key.compareTo(a.key));
 
+  // Monthly breakdown: default to the most recent year with finishes,
+  // otherwise the current year.
+  final monthlyYear =
+      byYearSorted.isNotEmpty ? byYearSorted.first.key : DateTime.now().year;
+  final byMonth = List<int>.filled(12, 0);
+  for (final b in books.where((b) =>
+      b.status == ReadingStatus.finished &&
+      (b.dateFinished ?? b.createdAt).year == monthlyYear)) {
+    final m = (b.dateFinished ?? b.createdAt).month; // 1..12
+    byMonth[m - 1]++;
+  }
+
   return ProfileStats(
     reading: books.where((b) => b.status == ReadingStatus.reading).length,
     finished: books.where((b) => b.status == ReadingStatus.finished).length,
@@ -58,6 +76,8 @@ ProfileStats computeStats(List<UserBook> books) {
     avgRating: avg,
     recentReviews: reviewed.take(10).toList(),
     finishedByYear: byYearSorted,
+    monthlyYear: monthlyYear,
+    finishedByMonth: byMonth,
   );
 }
 
