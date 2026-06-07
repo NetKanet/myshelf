@@ -108,13 +108,13 @@ verified independently.
 
 ### Tests
 
-- [ ] T023 [P] [US3] Integration test scan flow in `app/test/features/scan/scan_flow_test.dart` (cache hit, API lookup, manual fallback, duplicate detection)
+- [X] T023 [P] [US3] Integration test scan flow in `app/test/features/scan/scan_flow_test.dart` (cache hit, API lookup, manual fallback, duplicate detection)
 
 ### Implementation
 
-- [ ] T024 [US3] Create `ScanProvider` in `app/lib/features/scan/scan_provider.dart` (ISBN → check books cache → check shelf for duplicate → GoogleBooksService → insert book + user_book as `want_to_read`)
-- [ ] T025 [US3] Build Scan screen in `app/lib/features/scan/scan_screen.dart` (mobile_scanner viewfinder, detected-ISBN + loading state, camera-permission-denied message with settings link)
-- [ ] T026 [US3] Build manual input dialog in `app/lib/features/scan/widgets/manual_input_dialog.dart` (title + author; reuse existing catalog row by title+author; `source='manual'`)
+- [X] T024 [US3] Create `ScanProvider` in `app/lib/features/scan/scan_provider.dart` (ISBN → check books cache → check shelf for duplicate → GoogleBooksService → insert book + user_book as `want_to_read`)
+- [X] T025 [US3] Build Scan screen in `app/lib/features/scan/scan_screen.dart` (mobile_scanner viewfinder, detected-ISBN + loading state, camera-permission-denied message with settings link)
+- [X] T026 [US3] Build manual input dialog in `app/lib/features/scan/widgets/manual_input_dialog.dart` (title + author; reuse existing catalog row by title+author; `source='manual'`)
 
 **Checkpoint**: Books can be added by scan or manually; no duplicates.
 
