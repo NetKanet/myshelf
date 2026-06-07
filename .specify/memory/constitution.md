@@ -138,7 +138,9 @@ Ambiguity MUST be resolved with the owner, not guessed.
 - Every plan MUST pass the Constitution Check gate before implementation begins.
 - A change is "done" only when: static analysis is clean, relevant tests pass, behavior
   is verified, and affected documentation is updated.
-- Commits and pushes happen only when the owner asks.
+- Spec Kit auto-commits locally after each phase (`after_*` hooks) to checkpoint progress;
+  ad-hoc commits otherwise happen when the owner asks. **Pushing to the remote happens
+  only when the owner explicitly asks** — auto-commit never pushes.
 
 ## Governance
 
@@ -151,4 +153,4 @@ Ambiguity MUST be resolved with the owner, not guessed.
 - Every plan and review MUST verify compliance with these principles; violations MUST be
   fixed or explicitly justified in Complexity Tracking.
 
-**Version**: 1.3.0 | **Ratified**: 2026-06-06 | **Last Amended**: 2026-06-07
+**Version**: 1.3.1 | **Ratified**: 2026-06-06 | **Last Amended**: 2026-06-07
