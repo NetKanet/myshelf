@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -79,10 +80,76 @@ class AuthScreen extends ConsumerWidget {
                     : const GoogleLogo(size: 20),
                 label: Text(isLoading ? 'Signing in…' : 'Sign in with Google'),
               ),
+              if (kDebugMode) ...[
+                const SizedBox(height: 24),
+                _DebugLogin(enabled: !isLoading),
+              ],
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Debug-only email/password login (compiled out of release builds).
+class _DebugLogin extends ConsumerStatefulWidget {
+  final bool enabled;
+  const _DebugLogin({required this.enabled});
+
+  @override
+  ConsumerState<_DebugLogin> createState() => _DebugLoginState();
+}
+
+class _DebugLoginState extends ConsumerState<_DebugLogin> {
+  final _email = TextEditingController(text: 'netto_kanet@hotmail.com');
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: const Text('Debug login (dev only)',
+          style: TextStyle(fontSize: 13, color: AppColors.lavender)),
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      children: [
+        TextField(
+          controller: _email,
+          decoration: const InputDecoration(
+              labelText: 'Email', isDense: true),
+          keyboardType: TextInputType.emailAddress,
+          autocorrect: false,
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _password,
+          decoration: const InputDecoration(
+              labelText: 'Password', isDense: true),
+          obscureText: true,
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: widget.enabled
+                ? () => ref
+                    .read(authControllerProvider.notifier)
+                    .signInWithPassword(
+                      _email.text.trim(),
+                      _password.text,
+                    )
+                : null,
+            child: const Text('Debug sign in'),
+          ),
+        ),
+      ],
     );
   }
 }

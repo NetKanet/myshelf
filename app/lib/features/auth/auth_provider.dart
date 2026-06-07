@@ -36,6 +36,19 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
+  /// Debug-only email/password sign-in (stripped from release builds).
+  /// Lets the developer sign in as an existing Supabase user without the
+  /// Google OAuth flow. Not a shipped feature — gated by kDebugMode in the UI.
+  Future<void> signInWithPassword(String email, String password) async {
+    state = const AsyncValue.loading();
+    try {
+      await _client.auth.signInWithPassword(email: email, password: password);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(_friendly(e), st);
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await GoogleSignIn.instance.signOut();
