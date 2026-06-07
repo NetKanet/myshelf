@@ -47,7 +47,7 @@ verified independently.
 
 **⚠️ CRITICAL**: No user-story work can begin until this phase is complete.
 
-- [ ] T007 Apply the Supabase migration per `data-model.md`: ensure `books`/`user_books` columns, create `app_config` table, create the `public_finished_shelf` view, set RLS (`owner full access` on user_books, public read on books), GRANT SELECT on the view to `anon`, and ensure `anon` has NO direct read on `user_books`
+- [X] T007 Apply the Supabase migration per `data-model.md`: ensure `books`/`user_books` columns, create `app_config` table, create the `public_finished_shelf` view, set RLS (`owner full access` on user_books, public read on books), GRANT SELECT on the view to `anon`, and ensure `anon` has NO direct read on `user_books`
 - [X] T008 [P] Create `Book` model in `app/lib/models/book.dart` (fromJson/toJson; normalize cover `http://`→`https://`)
 - [X] T009 [P] Create `UserBook` model in `app/lib/models/user_book.dart` (ReadingStatus enum, dates, `rating` double?, `review` String?, copyWith with clear flags)
 - [X] T010 Create `SupabaseService` in `app/lib/services/supabase_service.dart` (books + user_books CRUD, watch/get by user, dedup helpers)
