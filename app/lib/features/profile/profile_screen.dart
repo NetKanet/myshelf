@@ -371,8 +371,11 @@ class _AvgPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.yellow.withValues(alpha: 0.18),
+        // Solid surface (not a translucent yellow) so it stands out against
+        // the cream background instead of blending in.
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.yellow.withValues(alpha: 0.55)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
