@@ -275,11 +275,26 @@ class _BookDetailContentState extends State<_BookDetailContent> {
     await _runCoverUpdate(() => widget.onSetCoverUrl(url));
   }
 
+  // Cap uploads so a huge image can't blow past the free Storage tier.
+  static const _maxCoverBytes = 5 * 1024 * 1024; // 5 MB
+
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery, maxWidth: 1000, imageQuality: 85);
     if (picked == null || !mounted) return;
     final bytes = await picked.readAsBytes();
+    if (bytes.lengthInBytes > _maxCoverBytes) {
+      if (mounted) {
+        final mb = (bytes.lengthInBytes / (1024 * 1024)).toStringAsFixed(1);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Image is too large ($mb MB). Max 5 MB.'),
+            backgroundColor: AppColors.coral,
+          ),
+        );
+      }
+      return;
+    }
     final ext = picked.name.contains('.') ? picked.name.split('.').last : 'jpg';
     if (!mounted) return;
     await _runCoverUpdate(() => widget.onSetCoverBytes(bytes, ext));

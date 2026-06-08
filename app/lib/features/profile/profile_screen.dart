@@ -260,6 +260,13 @@ class _StatusBreakdown extends StatelessWidget {
       child: Column(
         children: [
           _Bar(
+            label: 'Want to Read',
+            value: s.wantToRead,
+            max: max,
+            color: AppColors.coral,
+          ),
+          const SizedBox(height: 12),
+          _Bar(
             label: 'Reading',
             value: s.reading,
             max: max,
@@ -271,13 +278,6 @@ class _StatusBreakdown extends StatelessWidget {
             value: s.finished,
             max: max,
             color: AppColors.mint,
-          ),
-          const SizedBox(height: 12),
-          _Bar(
-            label: 'Want to Read',
-            value: s.wantToRead,
-            max: max,
-            color: AppColors.coral,
           ),
         ],
       ),
