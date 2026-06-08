@@ -11,7 +11,7 @@ import '../../features/scan/scan_screen.dart';
 import '../../features/scan/manual_entry_screen.dart';
 import '../../features/book_detail/book_detail_screen.dart';
 
-/// App router with an auth redirect: signed-out → /login, signed-in → /shelf.
+/// App router with an auth redirect: signed-out → /login, signed-in → /home.
 final routerProvider = Provider<GoRouter>((ref) {
   final client = ref.watch(supabaseClientProvider);
   final refresh = GoRouterRefreshStream(client.auth.onAuthStateChange);

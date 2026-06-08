@@ -36,11 +36,13 @@ class BookDetailScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (userBook) {
           if (userBook == null) {
+            // Book was deleted (or not found): leave this screen exactly once.
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
               if (context.canPop()) {
                 context.pop();
               } else {
-                context.go('/shelf');
+                context.go('/home');
               }
             });
             return const SizedBox.shrink();
@@ -74,13 +76,8 @@ class BookDetailScreen extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       await ref.read(bookDetailProvider(userBookId).notifier).deleteFromShelf();
       ref.invalidate(shelfBooksProvider);
-      if (context.mounted) {
-        if (context.canPop()) {
-          context.pop();
-        } else {
-          context.go('/shelf');
-        }
-      }
+      // Leaving the screen is handled by the null-state branch in build()
+      // once the provider emits AsyncData(null) — avoids a double navigation.
     }
   }
 }
