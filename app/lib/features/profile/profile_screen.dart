@@ -8,17 +8,52 @@ import '../../core/widgets/deco_background.dart';
 import '../auth/auth_provider.dart';
 import 'profile_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  /// Years compared at once. The filter governs the whole page (headline
+  /// metrics + chart); "Currently" stays all-time since it is status-based.
+  static const _maxYears = 3;
+  List<int>? _selected; // null until first interaction → defaults below
+
+  /// The effective selection: valid years only, defaulting to the most recent.
+  List<int> _effective(List<int> allYears) {
+    if (allYears.isEmpty) return const [];
+    final sel = _selected?.where(allYears.contains).toList();
+    if (sel == null || sel.isEmpty) {
+      return allYears.length > _maxYears
+          ? allYears.sublist(allYears.length - _maxYears)
+          : List<int>.of(allYears);
+    }
+    return sel..sort();
+  }
+
+  void _toggle(int year, List<int> allYears) {
+    final cur = List<int>.of(_effective(allYears));
+    if (cur.contains(year)) {
+      if (cur.length > 1) cur.remove(year); // keep at least one
+    } else if (cur.length < _maxYears) {
+      cur
+        ..add(year)
+        ..sort();
+    }
+    setState(() => _selected = cur);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final statsAsync = ref.watch(profileStatsProvider);
     final name =
         user?.userMetadata?['name'] as String? ?? user?.email ?? 'Reader';
-    final avatarUrl = (user?.userMetadata?['avatar_url'] ??
-        user?.userMetadata?['picture']) as String?;
+    final avatarUrl =
+        (user?.userMetadata?['avatar_url'] ?? user?.userMetadata?['picture'])
+            as String?;
 
     return Scaffold(
       appBar: AppBar(
@@ -36,37 +71,45 @@ class ProfileScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Error: $e')),
           data: (s) {
-            final thisYear = s.finishedByYear
-                .where((e) => e.key == DateTime.now().year)
-                .fold<int>(0, (a, e) => a + e.value);
+            final allYears = s.finishedByYearMonth.map((e) => e.key).toList()
+              ..sort();
+            final selected = _effective(allYears);
+            final hasFilter = allYears.length >= 2;
+            // Headline metrics follow the selected years (all-time if no filter).
+            final finishedCount = hasFilter
+                ? s.finishedInYears(selected)
+                : s.finished;
+            final avg = hasFilter ? s.avgRatingInYears(selected) : s.avgRating;
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
                 _Header(name: name, email: user?.email, avatarUrl: avatarUrl),
                 const SizedBox(height: 20),
-                // Headline numbers (reading progress at a glance).
+                if (hasFilter) ...[
+                  _YearFilter(
+                    allYears: allYears,
+                    selected: selected,
+                    maxYears: _maxYears,
+                    onToggle: (y) => _toggle(y, allYears),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // Headline numbers (for the selected years).
                 Row(
                   children: [
                     Expanded(
                       child: _MiniMetric(
                         label: 'Books finished',
-                        child: _BigNumber('${s.finished}'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _MiniMetric(
-                        label: 'This year',
-                        child: _BigNumber('$thisYear'),
+                        child: _BigNumber('$finishedCount'),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _MiniMetric(
                         label: 'Avg rating',
-                        child: s.avgRating == null
+                        child: avg == null
                             ? _BigNumber('—')
-                            : _BigNumber(s.avgRating!.toStringAsFixed(1)),
+                            : _BigNumber(avg.toStringAsFixed(1)),
                       ),
                     ),
                   ],
@@ -75,24 +118,16 @@ class ProfileScreen extends ConsumerWidget {
                 _SectionTitle('Currently'),
                 const SizedBox(height: 12),
                 _StatusBreakdown(s: s),
-                if (s.finished > 0) ...[
+                if (selected.isNotEmpty) ...[
                   const SizedBox(height: 24),
-                  _SectionTitle('Finished in ${s.monthlyYear}'),
+                  _SectionTitle('Reading pace'),
                   const SizedBox(height: 12),
                   _ChartCard(
-                    child: SizedBox(
-                      height: 170,
-                      child: _MonthlyChart(months: s.finishedByMonth),
+                    child: _YearPaceChart(
+                      data: s.finishedByYearMonth,
+                      selected: selected,
                     ),
                   ),
-                  if (s.finishedByYearMonth.length > 1) ...[
-                    const SizedBox(height: 20),
-                    _SectionTitle('Reading pace by year'),
-                    const SizedBox(height: 12),
-                    _ChartCard(
-                      child: _YearMonthlyChart(data: s.finishedByYearMonth),
-                    ),
-                  ],
                 ],
                 const SizedBox(height: 24),
               ],
@@ -443,239 +478,204 @@ AxisTitles _countAxis(BuildContext context, double maxV) => AxisTitles(
   ),
 );
 
-/// Always-on value labels above each bar (so the chart shows numbers too).
-BarTouchData _valueLabels(BuildContext context) => BarTouchData(
-  enabled: false,
-  touchTooltipData: BarTouchTooltipData(
-    getTooltipColor: (_) => Colors.transparent,
-    tooltipPadding: EdgeInsets.zero,
-    tooltipMargin: 2,
-    getTooltipItem: (group, gi, rod, ri) => rod.toY <= 0
-        ? null
-        : BarTooltipItem(
-            '${rod.toY.toInt()}',
-            TextStyle(
-              color: AppColors.ink(context),
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-            ),
-          ),
-  ),
-);
+/// Distinct colour per selected pace line — index = position in the sorted
+/// selection, so the year chips and chart lines stay colour-matched.
+const _paceColors = [AppColors.coral, AppColors.mint, AppColors.lavender];
 
-/// Vertical bar chart: finished books per month (Jan..Dec).
-class _MonthlyChart extends StatelessWidget {
-  final List<int> months; // length 12
-  const _MonthlyChart({required this.months});
+Color _paceColor(List<int> selectedSorted, int year) {
+  final i = selectedSorted.indexOf(year);
+  return i < 0 ? AppColors.lavender : _paceColors[i % _paceColors.length];
+}
+
+/// Page-level year filter: pick up to [maxYears] years to compare. Selected
+/// chips wear their pace-line colour (so the row doubles as the chart legend).
+class _YearFilter extends StatelessWidget {
+  final List<int> allYears; // ascending
+  final List<int> selected; // ascending
+  final int maxYears;
+  final void Function(int year) onToggle;
+
+  const _YearFilter({
+    required this.allYears,
+    required this.selected,
+    required this.maxYears,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final maxV = months.fold<int>(1, (m, v) => v > m ? v : m).toDouble();
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: maxV + 1,
-        borderData: FlBorderData(show: false),
-        gridData: const FlGridData(show: false),
-        barTouchData: _valueLabels(context),
-        titlesData: FlTitlesData(
-          leftTitles: _countAxis(context, maxV),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
+    final atMax = selected.length >= maxYears;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final y in allYears)
+          _YearChip(
+            year: y,
+            selected: selected.contains(y),
+            color: selected.contains(y) ? _paceColor(selected, y) : null,
+            enabled: selected.contains(y) || !atMax,
+            onTap: () => onToggle(y),
           ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 28,
-              getTitlesWidget: (v, _) => Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Transform.rotate(
-                  angle: -0.6,
-                  child: Text(
-                    _monthLabels[v.toInt() % 12],
-                    style: TextStyle(
-                      fontSize: 8,
-                      color: AppColors.ink(context).withValues(alpha: 0.5),
+      ],
+    );
+  }
+}
+
+/// Cumulative "reading pace" line chart — one line per selected year.
+class _YearPaceChart extends StatelessWidget {
+  final List<MapEntry<int, List<int>>> data; // all years
+  final List<int> selected; // ascending years to draw
+
+  const _YearPaceChart({required this.data, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final byYear = {for (final e in data) e.key: e.value};
+    final shown = selected.where(byYear.containsKey).toList()..sort();
+    // Cumulative chart: the highest point a line reaches is the selected year
+    // with the most finished books (its end-of-year running total).
+    final maxV = shown
+        .map((y) => byYear[y]!.fold<int>(0, (a, b) => a + b))
+        .fold<int>(1, (m, v) => v > m ? v : m)
+        .toDouble();
+    return SizedBox(
+      height: 170,
+      child: LineChart(
+        LineChartData(
+          minY: 0,
+          maxY: maxV + 1,
+          minX: 0,
+          maxX: 11,
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(show: false),
+          lineTouchData: const LineTouchData(enabled: false),
+          titlesData: FlTitlesData(
+            leftTitles: _countAxis(context, maxV),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                reservedSize: 28,
+                getTitlesWidget: (v, _) {
+                  if (v % 1 != 0 || v < 0 || v > 11) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Transform.rotate(
+                      angle: -0.6,
+                      child: Text(
+                        _monthLabels[v.toInt()],
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: AppColors.ink(context).withValues(alpha: 0.5),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
-        ),
-        barGroups: [
-          for (var i = 0; i < 12; i++)
-            BarChartGroupData(
-              x: i,
-              showingTooltipIndicators: months[i] > 0 ? [0] : [],
-              barRods: [
-                BarChartRodData(
-                  toY: months[i].toDouble(),
-                  color: AppColors.mint,
-                  width: 12,
-                  borderRadius: BorderRadius.circular(4),
+          lineBarsData: [
+            for (final y in shown)
+              LineChartBarData(
+                spots: [
+                  // Running total of finished books up to each month.
+                  for (var m = 0; m < 12; m++)
+                    FlSpot(
+                      m.toDouble(),
+                      byYear[y]!
+                          .take(m + 1)
+                          .fold<int>(0, (a, b) => a + b)
+                          .toDouble(),
+                    ),
+                ],
+                isCurved: true,
+                preventCurveOverShooting: true,
+                color: _paceColor(shown, y),
+                barWidth: 3,
+                dotData: FlDotData(
+                  show: true,
+                  getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
+                    radius: 3,
+                    color: _paceColor(shown, y),
+                    strokeWidth: 2,
+                    strokeColor: AppColors.surface(context),
+                  ),
                 ),
-              ],
-            ),
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Multi-line chart: one line per year, finished books across the 12 months.
-/// Lets you compare how each year's reading rose and fell month to month.
-class _YearMonthlyChart extends StatelessWidget {
-  final List<MapEntry<int, List<int>>> data; // oldest year first
+/// A toggleable year pill for the reading-pace chart. When selected it wears
+/// its line colour (so it doubles as the legend); disabled when the max number
+/// of years is already chosen.
+class _YearChip extends StatelessWidget {
+  final int year;
+  final bool selected;
+  final Color? color;
+  final bool enabled;
+  final VoidCallback onTap;
 
-  const _YearMonthlyChart({required this.data});
-
-  /// Only the most recent few years are charted — more than this and the
-  /// overlapping lines + legend become unreadable.
-  static const _maxYears = 5;
-
-  // A distinct colour per year line (one per shown year, no repeats).
-  static const _lineColors = [
-    AppColors.lavender,
-    AppColors.mint,
-    AppColors.coral,
-    AppColors.yellow,
-    Color(0xFF4FACFE), // sky — visible on both light & dark cards
-  ];
-
-  Color _colorFor(int index) => _lineColors[index % _lineColors.length];
+  const _YearChip({
+    required this.year,
+    required this.selected,
+    required this.color,
+    required this.enabled,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Keep only the most recent years so the chart stays readable over time.
-    final years =
-        data.length > _maxYears ? data.sublist(data.length - _maxYears) : data;
-    // Cumulative chart: the highest point any line reaches is the year with
-    // the most finished books (its end-of-year running total).
-    final maxV = years
-        .map((e) => e.value.fold<int>(0, (a, b) => a + b))
-        .fold<int>(1, (m, v) => v > m ? v : m)
-        .toDouble();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Legend: a coloured dot + year for each line.
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Wrap(
-            spacing: 16,
-            runSpacing: 4,
+    final c = color ?? AppColors.lavender;
+    final ink = AppColors.ink(context);
+    return Opacity(
+      opacity: enabled ? 1 : 0.35,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: selected ? c.withValues(alpha: 0.18) : Colors.transparent,
+            border: Border.all(
+              color: selected ? c : ink.withValues(alpha: 0.2),
+              width: selected ? 1.5 : 1,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              for (var i = 0; i < years.length; i++)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: _colorFor(i),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${years[i].key}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.ink(context).withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
+              if (selected) ...[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(color: c, shape: BoxShape.circle),
                 ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                '$year',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: ink.withValues(alpha: selected ? 0.9 : 0.6),
+                ),
+              ),
             ],
           ),
         ),
-        SizedBox(
-          height: 160,
-          child: LineChart(
-            LineChartData(
-              minY: 0,
-              maxY: maxV + 1,
-              minX: 0,
-              maxX: 11,
-              borderData: FlBorderData(show: false),
-              gridData: const FlGridData(show: false),
-              lineTouchData: const LineTouchData(enabled: false),
-              titlesData: FlTitlesData(
-                leftTitles: _countAxis(context, maxV),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 1,
-                    reservedSize: 28,
-                    getTitlesWidget: (v, _) {
-                      if (v % 1 != 0 || v < 0 || v > 11) {
-                        return const SizedBox();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: Transform.rotate(
-                          angle: -0.6,
-                          child: Text(
-                            _monthLabels[v.toInt()],
-                            style: TextStyle(
-                              fontSize: 8,
-                              color: AppColors.ink(
-                                context,
-                              ).withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              lineBarsData: [
-                for (var i = 0; i < years.length; i++)
-                  LineChartBarData(
-                    spots: [
-                      // Running total of finished books up to each month.
-                      for (var m = 0; m < 12; m++)
-                        FlSpot(
-                          m.toDouble(),
-                          years[i]
-                              .value
-                              .take(m + 1)
-                              .fold<int>(0, (a, b) => a + b)
-                              .toDouble(),
-                        ),
-                    ],
-                    isCurved: true,
-                    preventCurveOverShooting: true,
-                    color: _colorFor(i),
-                    barWidth: 3,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
-                        radius: 3,
-                        color: _colorFor(i),
-                        strokeWidth: 2,
-                        strokeColor: AppColors.surface(context),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
