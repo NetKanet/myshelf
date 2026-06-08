@@ -11,6 +11,12 @@ private review**.
 > and [`.specify/memory/constitution.md`](.specify/memory/constitution.md) for the project
 > principles.
 
+## Screenshots
+
+| Shelf | Profile |
+|:-----:|:-------:|
+| <img src="docs/screenshots/shelf.png" width="280" alt="Shelf — books grouped by year with status and rating"> | <img src="docs/screenshots/profile.png" width="280" alt="Profile dashboard — counts, status breakdown and charts"> |
+
 ## Features
 
 - **Google sign-in** → Supabase Auth, with an auth-guarded router.
@@ -97,3 +103,7 @@ flutter test      # all tests pass
 Mobile app (US1–US4) and v2 UI polish complete; public-web integration wired against the
 live view. Remaining: deploy the public site and validate the quickstart scenarios. See
 [`docs/prd.md`](docs/prd.md) → "Implementation status".
+
+## License
+
+[MIT](LICENSE) © 2026 Kanet Kampiranon ([admyhusky](https://github.com/NetKanet))
