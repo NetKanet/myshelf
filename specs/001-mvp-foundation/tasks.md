@@ -149,9 +149,9 @@ verified independently.
 
 ### Implementation
 
-- [ ] T032 [US5] Set `app_config.owner_user_id` to Net's `user_id` in Supabase (after his first sign-in)
-- [ ] T033 [US5] Update `admyhusky-dev-template/data.js` to fetch `public_finished_shelf` per `contracts/public-web-read.md` (order by date_finished desc) and render grouped by year
-- [ ] T034 [US5] Verify guarantees in `contracts/public-web-read.md`: view returns finished + owner-scoped + safe columns only; anon `user_books` query returns nothing; `review` never present
+- [X] T032 [US5] Set `app_config.owner_user_id` to Net's `user_id` in Supabase — set to 4cd25b7e… (netto_kanet@hotmail.com)
+- [X] T033 [US5] Update `admyhusky-dev-template/data.js` to fetch `public_finished_shelf` (order by date_finished desc), map flat view columns, group by year, re-render via `shelf:updated` event
+- [X] T034 [US5] Verify guarantees: view returns finished + owner-scoped + safe columns only ✓; anon `user_books` query returns `[]` ✓; `review` column absent from view ✓ (verified via REST with publishable key)
 
 **Checkpoint**: The scan→web loop is closed with no redeploy.
 
