@@ -22,22 +22,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   static const _maxYears = 3;
   List<int>? _selected; // null until first interaction → defaults below
 
-  /// The effective selection: valid years only, defaulting to the most recent.
+  /// The effective selection. Defaults to the most recent years only before
+  /// the user has interacted; once they have, an empty selection is honoured
+  /// (the year-scoped sections then show an empty state).
   List<int> _effective(List<int> allYears) {
     if (allYears.isEmpty) return const [];
-    final sel = _selected?.where(allYears.contains).toList();
-    if (sel == null || sel.isEmpty) {
+    final sel = _selected;
+    if (sel == null) {
       return allYears.length > _maxYears
           ? allYears.sublist(allYears.length - _maxYears)
           : List<int>.of(allYears);
     }
-    return sel..sort();
+    return sel.where(allYears.contains).toList()..sort();
   }
 
   void _toggle(int year, List<int> allYears) {
     final cur = List<int>.of(_effective(allYears));
     if (cur.contains(year)) {
-      if (cur.length > 1) cur.remove(year); // keep at least one
+      cur.remove(year); // may clear to none
     } else if (cur.length < _maxYears) {
       cur
         ..add(year)
@@ -108,30 +110,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 18),
                 ],
-                // Section header: the period + its average rating.
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: _SectionTitle(_periodLabel(selected))),
-                    if (avg != null) _AvgPill(avg),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _StatusBreakdown(
-                  wantToRead: wantN,
-                  reading: readingN,
-                  finished: finishedN,
-                ),
-                if (hasPace) ...[
-                  const SizedBox(height: 24),
-                  _SectionTitle('Reading pace'),
-                  const SizedBox(height: 12),
-                  _ChartCard(
-                    child: _YearPaceChart(
-                      data: s.finishedByYearMonth,
-                      selected: selected,
-                    ),
+                if (selected.isEmpty)
+                  _EmptyHint(
+                    icon: allYears.isEmpty
+                        ? Icons.menu_book_rounded
+                        : Icons.touch_app_outlined,
+                    text: allYears.isEmpty
+                        ? 'No reading activity yet.'
+                        : 'Pick a year above to see your reading activity.',
+                  )
+                else ...[
+                  // Section header: the period + its average rating.
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _SectionTitle(_periodLabel(selected))),
+                      if (avg != null) _AvgPill(avg),
+                    ],
                   ),
+                  const SizedBox(height: 12),
+                  _StatusBreakdown(
+                    wantToRead: wantN,
+                    reading: readingN,
+                    finished: finishedN,
+                  ),
+                  if (hasPace) ...[
+                    const SizedBox(height: 24),
+                    _SectionTitle('Reading pace'),
+                    const SizedBox(height: 12),
+                    _ChartCard(
+                      child: _YearPaceChart(
+                        data: s.finishedByYearMonth,
+                        selected: selected,
+                      ),
+                    ),
+                  ],
                 ],
                 const SizedBox(height: 24),
               ],
@@ -418,6 +431,37 @@ class _Bar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Shown when no year is selected (or there is no activity at all).
+class _EmptyHint extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _EmptyHint({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = AppColors.ink(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 36, color: AppColors.lavender),
+          const SizedBox(height: 12),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: ink.withValues(alpha: 0.6)),
+          ),
+        ],
+      ),
     );
   }
 }
