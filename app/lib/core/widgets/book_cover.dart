@@ -1,6 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+/// Some book-cover hosts (naiin, kinokuniya, …) reject requests without a
+/// browser User-Agent (hotlink protection), so cover loads must send one.
+const Map<String, String> _coverHeaders = {
+  'User-Agent':
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) '
+          'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 '
+          'Mobile/15E148 Safari/604.1',
+};
+
 /// Colorful gradient placeholders (from the design mockup) used when a book
 /// has no cover image. A stable [seed] picks the same gradient every time.
 const List<List<Color>> _gradients = [
@@ -38,13 +47,21 @@ class BookCover extends StatelessWidget {
       radius: radius,
     );
     if (coverUrl == null || coverUrl!.isEmpty) return placeholder;
+    // Decode covers at (roughly) their display size instead of full
+    // resolution — a 1000px image rendered at 56px would otherwise waste
+    // memory. Scaled by devicePixelRatio so it stays crisp.
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+    final decodeWidth = (width * dpr).round();
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: CachedNetworkImage(
         imageUrl: coverUrl!,
+        httpHeaders: _coverHeaders,
         width: width,
         height: height,
         fit: BoxFit.cover,
+        memCacheWidth: decodeWidth,
+        maxWidthDiskCache: decodeWidth,
         placeholder: (_, _) => placeholder,
         errorWidget: (_, _, _) => placeholder,
       ),

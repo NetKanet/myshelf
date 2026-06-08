@@ -38,7 +38,8 @@ website that reads Supabase via REST with the anon key
 profile site
 
 **Performance Goals**: Scan-to-detail within a few seconds on a catalog hit; 60 fps UI;
-re-scan of a cached book makes zero external calls
+re-scan of a cached book makes zero external calls; the shelf loads on-demand (lazy list
+rows + covers, decode at display size) — see [docs/performance.md](../../docs/performance.md)
 
 **Constraints**: Must stay within Supabase + Google Books free tiers; cover images stored
 as URL only; one primary user but per-user isolation enforced
