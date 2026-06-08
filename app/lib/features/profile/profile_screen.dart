@@ -329,33 +329,7 @@ class _StatusBreakdown extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _Bar(
-            label: 'Want to Read',
-            value: wantToRead,
-            max: max,
-            color: AppColors.coral,
-          ),
-          const SizedBox(height: 12),
-          _Bar(
-            label: 'Reading',
-            value: reading,
-            max: max,
-            color: AppColors.lavender,
-          ),
-          const SizedBox(height: 12),
-          _Bar(
-            label: 'Finished',
-            value: finished,
-            max: max,
-            color: AppColors.mint,
-          ),
           if (avg != null) ...[
-            const SizedBox(height: 14),
-            Divider(
-              height: 1,
-              color: AppColors.ink(context).withValues(alpha: 0.08),
-            ),
-            const SizedBox(height: 14),
             Row(
               children: [
                 Text(
@@ -381,7 +355,33 @@ class _StatusBreakdown extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 14),
+            Divider(
+              height: 1,
+              color: AppColors.ink(context).withValues(alpha: 0.08),
+            ),
+            const SizedBox(height: 14),
           ],
+          _Bar(
+            label: 'Want to Read',
+            value: wantToRead,
+            max: max,
+            color: AppColors.coral,
+          ),
+          const SizedBox(height: 12),
+          _Bar(
+            label: 'Reading',
+            value: reading,
+            max: max,
+            color: AppColors.lavender,
+          ),
+          const SizedBox(height: 12),
+          _Bar(
+            label: 'Finished',
+            value: finished,
+            max: max,
+            color: AppColors.mint,
+          ),
         ],
       ),
     );
