@@ -505,19 +505,29 @@ class _YearFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final atMax = selected.length >= maxYears;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final y in allYears)
-          _YearChip(
-            year: y,
-            selected: selected.contains(y),
-            color: selected.contains(y) ? _paceColor(selected, y) : null,
-            enabled: selected.contains(y) || !atMax,
-            onTap: () => onToggle(y),
-          ),
-      ],
+    final years = allYears.reversed.toList(); // newest first
+    // A single horizontally-scrolling row so any number of years fits on one
+    // line (recent years are visible first; older ones scroll into view).
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        itemCount: years.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final y = years[i];
+          return Center(
+            child: _YearChip(
+              year: y,
+              selected: selected.contains(y),
+              color: selected.contains(y) ? _paceColor(selected, y) : null,
+              enabled: selected.contains(y) || !atMax,
+              onTap: () => onToggle(y),
+            ),
+          );
+        },
+      ),
     );
   }
 }
