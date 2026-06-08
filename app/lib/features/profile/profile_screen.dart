@@ -533,21 +533,29 @@ class _YearMonthlyChart extends StatelessWidget {
 
   const _YearMonthlyChart({required this.data});
 
-  // A distinct colour per year line (cycles if more than four years).
+  /// Only the most recent few years are charted — more than this and the
+  /// overlapping lines + legend become unreadable.
+  static const _maxYears = 5;
+
+  // A distinct colour per year line (one per shown year, no repeats).
   static const _lineColors = [
     AppColors.lavender,
     AppColors.mint,
     AppColors.coral,
     AppColors.yellow,
+    Color(0xFF4FACFE), // sky — visible on both light & dark cards
   ];
 
   Color _colorFor(int index) => _lineColors[index % _lineColors.length];
 
   @override
   Widget build(BuildContext context) {
+    // Keep only the most recent years so the chart stays readable over time.
+    final years =
+        data.length > _maxYears ? data.sublist(data.length - _maxYears) : data;
     // Cumulative chart: the highest point any line reaches is the year with
     // the most finished books (its end-of-year running total).
-    final maxV = data
+    final maxV = years
         .map((e) => e.value.fold<int>(0, (a, b) => a + b))
         .fold<int>(1, (m, v) => v > m ? v : m)
         .toDouble();
@@ -561,7 +569,7 @@ class _YearMonthlyChart extends StatelessWidget {
             spacing: 16,
             runSpacing: 4,
             children: [
-              for (var i = 0; i < data.length; i++)
+              for (var i = 0; i < years.length; i++)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -575,7 +583,7 @@ class _YearMonthlyChart extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${data[i].key}',
+                      '${years[i].key}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -635,14 +643,14 @@ class _YearMonthlyChart extends StatelessWidget {
                 ),
               ),
               lineBarsData: [
-                for (var i = 0; i < data.length; i++)
+                for (var i = 0; i < years.length; i++)
                   LineChartBarData(
                     spots: [
                       // Running total of finished books up to each month.
                       for (var m = 0; m < 12; m++)
                         FlSpot(
                           m.toDouble(),
-                          data[i]
+                          years[i]
                               .value
                               .take(m + 1)
                               .fold<int>(0, (a, b) => a + b)
