@@ -87,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   if (s.finishedByYearMonth.length > 1) ...[
                     const SizedBox(height: 20),
-                    _SectionTitle('By month, per year'),
+                    _SectionTitle('Reading pace by year'),
                     const SizedBox(height: 12),
                     _ChartCard(
                       child: _YearMonthlyChart(data: s.finishedByYearMonth),
@@ -545,8 +545,10 @@ class _YearMonthlyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cumulative chart: the highest point any line reaches is the year with
+    // the most finished books (its end-of-year running total).
     final maxV = data
-        .expand((e) => e.value)
+        .map((e) => e.value.fold<int>(0, (a, b) => a + b))
         .fold<int>(1, (m, v) => v > m ? v : m)
         .toDouble();
     return Column(
@@ -636,8 +638,16 @@ class _YearMonthlyChart extends StatelessWidget {
                 for (var i = 0; i < data.length; i++)
                   LineChartBarData(
                     spots: [
+                      // Running total of finished books up to each month.
                       for (var m = 0; m < 12; m++)
-                        FlSpot(m.toDouble(), data[i].value[m].toDouble()),
+                        FlSpot(
+                          m.toDouble(),
+                          data[i]
+                              .value
+                              .take(m + 1)
+                              .fold<int>(0, (a, b) => a + b)
+                              .toDouble(),
+                        ),
                     ],
                     isCurved: true,
                     preventCurveOverShooting: true,
