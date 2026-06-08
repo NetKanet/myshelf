@@ -16,8 +16,9 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  /// Years compared at once. The filter governs the whole page (headline
-  /// metrics + chart); "Currently" stays all-time since it is status-based.
+  /// Years compared at once. The filter governs the whole page — the status
+  /// breakdown (each status by its own date), the average rating and the pace
+  /// chart all follow the selected years.
   static const _maxYears = 3;
   List<int>? _selected; // null until first interaction → defaults below
 
@@ -43,6 +44,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ..sort();
     }
     setState(() => _selected = cur);
+  }
+
+  /// "In 2026", "In 2024–2026" (consecutive) or "In 2023, 2025".
+  String _periodLabel(List<int> years) {
+    if (years.isEmpty) return 'Activity';
+    if (years.length == 1) return 'In ${years.first}';
+    final sorted = [...years]..sort();
+    final consecutive = sorted.last - sorted.first == sorted.length - 1;
+    return consecutive
+        ? 'In ${sorted.first}–${sorted.last}'
+        : 'In ${sorted.join(', ')}';
   }
 
   @override
@@ -71,15 +83,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Error: $e')),
           data: (s) {
-            final allYears = s.finishedByYearMonth.map((e) => e.key).toList()
-              ..sort();
-            final selected = _effective(allYears);
+            final allYears = s.activityYears; // every year with any activity
             final hasFilter = allYears.length >= 2;
-            // Headline metrics follow the selected years (all-time if no filter).
-            final finishedCount = hasFilter
-                ? s.finishedInYears(selected)
-                : s.finished;
-            final avg = hasFilter ? s.avgRatingInYears(selected) : s.avgRating;
+            final selected = hasFilter ? _effective(allYears) : allYears;
+            // Status breakdown + avg rating follow the selected years.
+            final wantN = s.wantInYears(selected);
+            final readingN = s.readingInYears(selected);
+            final finishedN = s.finishedInYears(selected);
+            final avg = s.avgRatingInYears(selected);
+            final hasPace = selected.any(
+              (y) => (s.finishedCountByYear[y] ?? 0) > 0,
+            );
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -92,33 +106,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     maxYears: _maxYears,
                     onToggle: (y) => _toggle(y, allYears),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                 ],
-                // Headline numbers (for the selected years).
+                // Section header: the period + its average rating.
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: _MiniMetric(
-                        label: 'Books finished',
-                        child: _BigNumber('$finishedCount'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _MiniMetric(
-                        label: 'Avg rating',
-                        child: avg == null
-                            ? _BigNumber('—')
-                            : _BigNumber(avg.toStringAsFixed(1)),
-                      ),
-                    ),
+                    Expanded(child: _SectionTitle(_periodLabel(selected))),
+                    if (avg != null) _AvgPill(avg),
                   ],
                 ),
-                const SizedBox(height: 20),
-                _SectionTitle('Currently'),
                 const SizedBox(height: 12),
-                _StatusBreakdown(s: s),
-                if (selected.isNotEmpty) ...[
+                _StatusBreakdown(
+                  wantToRead: wantN,
+                  reading: readingN,
+                  finished: finishedN,
+                ),
+                if (hasPace) ...[
                   const SizedBox(height: 24),
                   _SectionTitle('Reading pace'),
                   const SizedBox(height: 12),
@@ -275,15 +279,21 @@ class _Header extends StatelessWidget {
 
 /// Horizontal proportional bars for Reading / Finished / Want to Read.
 class _StatusBreakdown extends StatelessWidget {
-  final ProfileStats s;
-  const _StatusBreakdown({required this.s});
+  final int wantToRead;
+  final int reading;
+  final int finished;
+  const _StatusBreakdown({
+    required this.wantToRead,
+    required this.reading,
+    required this.finished,
+  });
 
   @override
   Widget build(BuildContext context) {
     final max = [
-      s.reading,
-      s.finished,
-      s.wantToRead,
+      reading,
+      finished,
+      wantToRead,
       1,
     ].reduce((a, b) => a > b ? a : b);
     return Container(
@@ -296,23 +306,55 @@ class _StatusBreakdown extends StatelessWidget {
         children: [
           _Bar(
             label: 'Want to Read',
-            value: s.wantToRead,
+            value: wantToRead,
             max: max,
             color: AppColors.coral,
           ),
           const SizedBox(height: 12),
           _Bar(
             label: 'Reading',
-            value: s.reading,
+            value: reading,
             max: max,
             color: AppColors.lavender,
           ),
           const SizedBox(height: 12),
           _Bar(
             label: 'Finished',
-            value: s.finished,
+            value: finished,
             max: max,
             color: AppColors.mint,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small rounded pill showing the average rating for the selected period.
+class _AvgPill extends StatelessWidget {
+  final double avg;
+  const _AvgPill(this.avg);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.yellow.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star_rounded, size: 16, color: AppColors.yellow),
+          const SizedBox(width: 4),
+          Text(
+            '${avg.toStringAsFixed(1)} avg',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.ink(context),
+            ),
           ),
         ],
       ),
@@ -376,53 +418,6 @@ class _Bar extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _MiniMetric extends StatelessWidget {
-  final String label;
-  final Widget child;
-  const _MiniMetric({required this.label, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface(context),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          child,
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: AppColors.ink(context).withValues(alpha: 0.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BigNumber extends StatelessWidget {
-  final String value;
-  const _BigNumber(this.value);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      value,
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w800,
-        color: AppColors.ink(context),
-      ),
     );
   }
 }

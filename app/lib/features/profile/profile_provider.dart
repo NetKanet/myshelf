@@ -23,8 +23,11 @@ class ProfileStats {
   /// Powers the multi-line "by month, per year" comparison chart.
   final List<MapEntry<int, List<int>>> finishedByYearMonth;
 
-  /// Year-scoped aggregates so the headline metrics can follow the year filter.
+  /// Per-year activity counts, each keyed by the date that defines that
+  /// status: finished → date_finished, reading → date_started, want → added.
   final Map<int, int> finishedCountByYear;
+  final Map<int, int> readingCountByYear;
+  final Map<int, int> wantCountByYear;
   final Map<int, double> ratingSumByYear;
   final Map<int, int> ratingCountByYear;
 
@@ -41,15 +44,30 @@ class ProfileStats {
     required this.finishedByMonth,
     required this.finishedByYearMonth,
     required this.finishedCountByYear,
+    required this.readingCountByYear,
+    required this.wantCountByYear,
     required this.ratingSumByYear,
     required this.ratingCountByYear,
   });
 
   int get total => reading + finished + wantToRead;
 
-  /// Finished books across the given years.
+  /// Every year with any activity (finished, started, or added), ascending.
+  List<int> get activityYears {
+    final years = <int>{
+      ...finishedCountByYear.keys,
+      ...readingCountByYear.keys,
+      ...wantCountByYear.keys,
+    }.toList()..sort();
+    return years;
+  }
+
   int finishedInYears(Iterable<int> years) =>
       years.fold(0, (a, y) => a + (finishedCountByYear[y] ?? 0));
+  int readingInYears(Iterable<int> years) =>
+      years.fold(0, (a, y) => a + (readingCountByYear[y] ?? 0));
+  int wantInYears(Iterable<int> years) =>
+      years.fold(0, (a, y) => a + (wantCountByYear[y] ?? 0));
 
   /// Average rating of books finished within the given years (null if none).
   double? avgRatingInYears(Iterable<int> years) {
@@ -73,10 +91,22 @@ ProfileStats computeStats(List<UserBook> books) {
       ? null
       : rated.map((b) => b.rating!).reduce((a, b) => a + b) / rated.length;
 
-  final byYear = <int, int>{};
-  for (final b in books.where((b) => b.status == ReadingStatus.finished)) {
-    final year = (b.dateFinished ?? b.createdAt).year;
-    byYear[year] = (byYear[year] ?? 0) + 1;
+  // Per-year activity counts keyed by each status's defining date.
+  final byYear = <int, int>{}; // finished → date_finished year
+  final readingByYear = <int, int>{}; // reading → date_started year
+  final wantByYear = <int, int>{}; // want → added (created_at) year
+  for (final b in books) {
+    switch (b.status) {
+      case ReadingStatus.finished:
+        final y = (b.dateFinished ?? b.createdAt).year;
+        byYear[y] = (byYear[y] ?? 0) + 1;
+      case ReadingStatus.reading:
+        final y = (b.dateStarted ?? b.createdAt).year;
+        readingByYear[y] = (readingByYear[y] ?? 0) + 1;
+      case ReadingStatus.wantToRead:
+        final y = b.createdAt.year;
+        wantByYear[y] = (wantByYear[y] ?? 0) + 1;
+    }
   }
   final byYearSorted = byYear.entries.toList()
     ..sort((a, b) => b.key.compareTo(a.key));
@@ -122,6 +152,8 @@ ProfileStats computeStats(List<UserBook> books) {
     finishedByMonth: byMonth,
     finishedByYearMonth: byYearMonthSorted,
     finishedCountByYear: byYear,
+    readingCountByYear: readingByYear,
+    wantCountByYear: wantByYear,
     ratingSumByYear: ratingSumByYear,
     ratingCountByYear: ratingCountByYear,
   );
