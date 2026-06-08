@@ -17,6 +17,8 @@ class ProfileScreen extends ConsumerWidget {
     final statsAsync = ref.watch(profileStatsProvider);
     final name =
         user?.userMetadata?['name'] as String? ?? user?.email ?? 'Reader';
+    final avatarUrl = (user?.userMetadata?['avatar_url'] ??
+        user?.userMetadata?['picture']) as String?;
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +42,7 @@ class ProfileScreen extends ConsumerWidget {
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                _Header(name: name, email: user?.email),
+                _Header(name: name, email: user?.email, avatarUrl: avatarUrl),
                 const SizedBox(height: 20),
                 // Headline numbers (reading progress at a glance).
                 Row(
@@ -188,16 +190,21 @@ class ProfileScreen extends ConsumerWidget {
 class _Header extends StatelessWidget {
   final String name;
   final String? email;
-  const _Header({required this.name, this.email});
+  final String? avatarUrl;
+  const _Header({required this.name, this.email, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
+    final hasAvatar = avatarUrl != null && avatarUrl!.isNotEmpty;
     return Row(
       children: [
-        const CircleAvatar(
+        CircleAvatar(
           radius: 28,
           backgroundColor: AppColors.lavender,
-          child: Icon(Icons.person, color: Colors.white, size: 32),
+          backgroundImage: hasAvatar ? NetworkImage(avatarUrl!) : null,
+          child: hasAvatar
+              ? null
+              : const Icon(Icons.person, color: Colors.white, size: 32),
         ),
         const SizedBox(width: 16),
         Expanded(
