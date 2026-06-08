@@ -99,9 +99,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             final readingN = s.readingInYears(selected);
             final finishedN = s.finishedInYears(selected);
             final avg = s.avgRatingInYears(selected);
-            final hasPace = selected.any(
-              (y) => (s.finishedCountByYear[y] ?? 0) > 0,
-            );
+            final isEmpty = selected.isEmpty;
+            // The dashboard structure is always shown; with no year selected
+            // the bars read 0 and the chart shows an empty placeholder.
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -118,50 +118,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 18),
                 ],
-                if (!allMode && selected.isEmpty)
-                  _EmptyHint(
-                    icon: allYears.isEmpty
-                        ? Icons.menu_book_rounded
-                        : Icons.touch_app_outlined,
-                    text: allYears.isEmpty
-                        ? 'No reading activity yet.'
-                        : 'Pick a year above to see your reading activity.',
-                  )
-                else ...[
-                  // Section header: the period + its average rating.
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: _SectionTitle(
-                          allMode ? 'All time' : _periodLabel(selected),
-                        ),
+                // Section header: the period + its average rating.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: _SectionTitle(
+                        allMode
+                            ? 'All time'
+                            : isEmpty
+                            ? 'Reading activity'
+                            : _periodLabel(selected),
                       ),
-                      if (avg != null) _AvgPill(avg),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _StatusBreakdown(
-                    wantToRead: wantN,
-                    reading: readingN,
-                    finished: finishedN,
-                  ),
-                  if (hasPace) ...[
-                    const SizedBox(height: 24),
-                    _SectionTitle(
-                      allMode ? 'Finished over the years' : 'Reading pace',
                     ),
-                    const SizedBox(height: 12),
-                    _ChartCard(
-                      child: allMode
-                          ? _AllTimeChart(data: s.finishedByYearMonth)
-                          : _YearPaceChart(
-                              data: s.finishedByYearMonth,
-                              selected: selected,
-                            ),
-                    ),
+                    if (avg != null) _AvgPill(avg),
                   ],
-                ],
+                ),
+                const SizedBox(height: 12),
+                _StatusBreakdown(
+                  wantToRead: wantN,
+                  reading: readingN,
+                  finished: finishedN,
+                ),
+                const SizedBox(height: 24),
+                _SectionTitle(
+                  allMode ? 'Finished over the years' : 'Reading pace',
+                ),
+                const SizedBox(height: 12),
+                _ChartCard(
+                  child: isEmpty
+                      ? const _EmptyChart()
+                      : allMode
+                      ? _AllTimeChart(data: s.finishedByYearMonth)
+                      : _YearPaceChart(
+                          data: s.finishedByYearMonth,
+                          selected: selected,
+                        ),
+                ),
                 const SizedBox(height: 24),
               ],
             );
@@ -451,32 +444,33 @@ class _Bar extends StatelessWidget {
   }
 }
 
-/// Shown when no year is selected (or there is no activity at all).
-class _EmptyHint extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _EmptyHint({required this.icon, required this.text});
+/// Empty placeholder inside the pace chart card when no year is selected —
+/// keeps the dashboard structure visible with a gentle hint.
+class _EmptyChart extends StatelessWidget {
+  const _EmptyChart();
 
   @override
   Widget build(BuildContext context) {
-    final ink = AppColors.ink(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-      decoration: BoxDecoration(
-        color: AppColors.surface(context),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 36, color: AppColors.lavender),
-          const SizedBox(height: 12),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: ink.withValues(alpha: 0.6)),
-          ),
-        ],
+    return SizedBox(
+      height: 170,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.show_chart_rounded,
+              size: 32,
+              color: AppColors.lavender.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pick a year above',
+              style: TextStyle(
+                color: AppColors.ink(context).withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
