@@ -126,27 +126,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 18),
                 ],
-                // Section header: the period + its average rating.
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: _SectionTitle(
-                        allMode
-                            ? 'All time'
-                            : isEmpty
-                            ? 'Reading activity'
-                            : _periodLabel(selected),
-                      ),
-                    ),
-                    if (avg != null) _AvgPill(avg),
-                  ],
+                _SectionTitle(
+                  allMode
+                      ? 'All time'
+                      : isEmpty
+                      ? 'Reading activity'
+                      : _periodLabel(selected),
                 ),
                 const SizedBox(height: 12),
                 _StatusBreakdown(
                   wantToRead: wantN,
                   reading: readingN,
                   finished: finishedN,
+                  avg: avg,
                 ),
                 const SizedBox(height: 24),
                 _SectionTitle(
@@ -313,10 +305,12 @@ class _StatusBreakdown extends StatelessWidget {
   final int wantToRead;
   final int reading;
   final int finished;
+  final double? avg;
   const _StatusBreakdown({
     required this.wantToRead,
     required this.reading,
     required this.finished,
+    this.avg,
   });
 
   @override
@@ -355,41 +349,39 @@ class _StatusBreakdown extends StatelessWidget {
             max: max,
             color: AppColors.mint,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Small rounded pill showing the average rating for the selected period.
-class _AvgPill extends StatelessWidget {
-  final double avg;
-  const _AvgPill(this.avg);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        // Solid surface (not a translucent yellow) so it stands out against
-        // the cream background instead of blending in.
-        color: AppColors.surface(context),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.yellow.withValues(alpha: 0.55)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.star_rounded, size: 16, color: AppColors.yellow),
-          const SizedBox(width: 4),
-          Text(
-            '${avg.toStringAsFixed(1)} avg',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.ink(context),
+          if (avg != null) ...[
+            const SizedBox(height: 14),
+            Divider(
+              height: 1,
+              color: AppColors.ink(context).withValues(alpha: 0.08),
             ),
-          ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Text(
+                  'Avg rating',
+                  style: TextStyle(
+                    color: AppColors.ink(context).withValues(alpha: 0.7),
+                  ),
+                ),
+                const Spacer(),
+                const Icon(
+                  Icons.star_rounded,
+                  size: 18,
+                  color: AppColors.yellow,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  avg!.toStringAsFixed(1),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.ink(context),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
