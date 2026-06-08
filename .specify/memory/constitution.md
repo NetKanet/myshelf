@@ -73,8 +73,10 @@ feature convenience.
 - Point lookups (scan / ISBN) MUST check the local `books` cache first; an external
   catalog MUST be contacted only on a cache miss.
 - Re-scanning a known book MUST NOT trigger an external API call.
-- Cover images MUST be stored as a URL only; image files MUST NOT be downloaded into the
-  database or object storage.
+- Cover images SHOULD be stored as a URL whenever one is available (catalog lookups, or a
+  user-pasted link). Users MAY also upload a cover image to Supabase Storage (public
+  `book-covers` bucket) for books that have no cover URL; only the resulting public URL is
+  persisted on `books.cover_url`. Uploaded files MUST stay within the free Storage tier.
 - External catalog calls MUST be fault-isolated and time-bounded; a failing source
   advances the fallback chain rather than blocking or crashing the flow.
 - Rationale: the project survives only if it never exceeds free quotas.

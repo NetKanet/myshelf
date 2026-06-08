@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/theme/app_theme.dart';
@@ -61,6 +64,18 @@ class BookDetailScreen extends ConsumerWidget {
                   );
               ref.invalidate(shelfBooksProvider);
             },
+            onSetCoverUrl: (url) async {
+              await ref
+                  .read(bookDetailProvider(userBookId).notifier)
+                  .setCoverFromUrl(url);
+              ref.invalidate(shelfBooksProvider);
+            },
+            onSetCoverBytes: (bytes, ext) async {
+              await ref
+                  .read(bookDetailProvider(userBookId).notifier)
+                  .setCoverFromBytes(bytes, ext);
+              ref.invalidate(shelfBooksProvider);
+            },
           );
         },
         ),
@@ -93,7 +108,14 @@ typedef _SaveCb = Future<void> Function(
 class _BookDetailContent extends StatefulWidget {
   final UserBook userBook;
   final _SaveCb onSave;
-  const _BookDetailContent({required this.userBook, required this.onSave});
+  final Future<void> Function(String url) onSetCoverUrl;
+  final Future<void> Function(Uint8List bytes, String ext) onSetCoverBytes;
+  const _BookDetailContent({
+    required this.userBook,
+    required this.onSave,
+    required this.onSetCoverUrl,
+    required this.onSetCoverBytes,
+  });
 
   @override
   State<_BookDetailContent> createState() => _BookDetailContentState();
@@ -179,6 +201,104 @@ class _BookDetailContentState extends State<_BookDetailContent> {
     }
   }
 
+  /// Cover edit entry point: choose to paste a link or upload from device.
+  Future<void> _editCover() async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: AppColors.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Text('Book cover',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontSize: 16)),
+            const SizedBox(height: 8),
+            ListTile(
+              leading:
+                  const Icon(Icons.link_rounded, color: AppColors.lavender),
+              title: Text('Paste image link',
+                  style: TextStyle(color: AppColors.ink(context))),
+              onTap: () => Navigator.pop(context, 'link'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded,
+                  color: AppColors.coral),
+              title: Text('Upload from device',
+                  style: TextStyle(color: AppColors.ink(context))),
+              onTap: () => Navigator.pop(context, 'upload'),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (action == 'link') {
+      await _pasteLink();
+    } else if (action == 'upload') {
+      await _pickImage();
+    }
+  }
+
+  Future<void> _pasteLink() async {
+    final controller =
+        TextEditingController(text: widget.userBook.book?.coverUrl ?? '');
+    final url = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface(context),
+        title: const Text('Image URL'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(hintText: 'https://…/cover.jpg'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save')),
+        ],
+      ),
+    );
+    if (url == null || url.isEmpty || !mounted) return;
+    await _runCoverUpdate(() => widget.onSetCoverUrl(url));
+  }
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery, maxWidth: 1000, imageQuality: 85);
+    if (picked == null || !mounted) return;
+    final bytes = await picked.readAsBytes();
+    final ext = picked.name.contains('.') ? picked.name.split('.').last : 'jpg';
+    if (!mounted) return;
+    await _runCoverUpdate(() => widget.onSetCoverBytes(bytes, ext));
+  }
+
+  Future<void> _runCoverUpdate(Future<void> Function() op) async {
+    try {
+      await op();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Cover update failed: $e'),
+              backgroundColor: AppColors.coral),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final book = widget.userBook.book;
@@ -220,12 +340,32 @@ class _BookDetailContentState extends State<_BookDetailContent> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BookCover(
-                        coverUrl: book?.coverUrl,
-                        seed: book?.id ?? widget.userBook.bookId,
-                        width: 110,
-                        height: 160,
-                        radius: 12,
+                      GestureDetector(
+                        onTap: _editCover,
+                        child: Stack(
+                          children: [
+                            BookCover(
+                              coverUrl: book?.coverUrl,
+                              seed: book?.id ?? widget.userBook.bookId,
+                              width: 110,
+                              height: 160,
+                              radius: 12,
+                            ),
+                            Positioned(
+                              right: 6,
+                              bottom: 6,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.navy.withValues(alpha: 0.55),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.edit_rounded,
+                                    size: 14, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 20),
                       Expanded(

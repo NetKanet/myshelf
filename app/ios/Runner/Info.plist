@@ -81,5 +81,7 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>My Shelf uses the camera to scan book barcodes (ISBN).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>My Shelf lets you pick an image from your photos to use as a book cover.</string>
 </dict>
 </plist>

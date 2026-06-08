@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -55,5 +57,28 @@ class BookDetailNotifier extends StateNotifier<AsyncValue<UserBook?>> {
   Future<void> deleteFromShelf() async {
     await _service.deleteUserBook(_id);
     state = const AsyncValue.data(null);
+  }
+
+  String? _bookId() {
+    final s = state;
+    return s is AsyncData<UserBook?> ? s.value?.book?.id : null;
+  }
+
+  /// Sets the book's cover from a pasted image URL, then reloads.
+  Future<void> setCoverFromUrl(String url) async {
+    final bookId = _bookId();
+    if (bookId == null) return;
+    await _service.updateBookCover(bookId, url);
+    await _load();
+  }
+
+  /// Uploads picked image bytes to storage, points the cover at it, reloads.
+  Future<void> setCoverFromBytes(Uint8List bytes, String ext) async {
+    final bookId = _bookId();
+    if (bookId == null) return;
+    final publicUrl =
+        await _service.uploadCoverImage(bookId: bookId, bytes: bytes, ext: ext);
+    await _service.updateBookCover(bookId, publicUrl);
+    await _load();
   }
 }

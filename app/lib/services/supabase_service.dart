@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/book.dart';
 import '../models/user_book.dart';
@@ -27,6 +29,35 @@ class SupabaseService {
   Future<Book> insertBook(Map<String, dynamic> data) async {
     final result = await _client.from('books').insert(data).select().single();
     return Book.fromJson(result);
+  }
+
+  /// Sets (or clears) a book's cover image URL in the shared catalog.
+  Future<void> updateBookCover(String bookId, String? coverUrl) async {
+    final normalized = coverUrl?.replaceFirst('http://', 'https://');
+    await _client
+        .from('books')
+        .update({'cover_url': normalized}).eq('id', bookId);
+  }
+
+  /// Uploads cover image bytes to the public `book-covers` bucket and returns
+  /// its public URL (cache-busted so re-uploads show immediately).
+  Future<String> uploadCoverImage({
+    required String bookId,
+    required Uint8List bytes,
+    required String ext,
+  }) async {
+    final safeExt = ext.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    final path = '$bookId/cover.$safeExt';
+    await _client.storage.from('book-covers').uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(
+            upsert: true,
+            contentType: 'image/${safeExt == 'jpg' ? 'jpeg' : safeExt}',
+          ),
+        );
+    final url = _client.storage.from('book-covers').getPublicUrl(path);
+    return '$url?t=${DateTime.now().millisecondsSinceEpoch}';
   }
 
   // ── user_books (per-user shelf) ─────────────────────────────────────────
