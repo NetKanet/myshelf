@@ -18,14 +18,19 @@ one shelf of books filtered by status/rating/review, scan ISBN to add (cache-fir
 Google Books, manual fallback), set status/dates/rating/review per book. A public profile
 site shows finished books live (cover/title/author/finish-date/rating; never the review).
 
-**Stack (fixed):** Flutter + Riverpod + GoRouter + Supabase (Postgres + Auth + RLS).
-Mobile app lives in `app/`. Cover images = URL only. Stay in free tier.
+**Stack (fixed):** Flutter + Riverpod + GoRouter + Supabase (Postgres + Auth + RLS +
+Storage). Mobile app lives in `app/`. Covers prefer a URL; users may also upload one to a
+public Storage bucket (5 MB / image-only). Stay in free tier.
 
-**Status (2026-06-08):** Mobile app done (US1–US4) + v2 UI polish (bottom nav, profile
-dashboard with charts, full dark mode). `flutter analyze` 0 issues, `flutter test` 16 pass.
-**Remaining:** public web profile (US5 — `app_config.owner_user_id`, wire
-`admyhusky-dev-template/data.js` to `public_finished_shelf`, verify privacy) + 8 quickstart
-scenarios on simulator. See [docs/prd.md](docs/prd.md) "Implementation status".
+**Status (2026-06-09) — MVP complete, tagged `v1.1.0`:** All 38 spec tasks done (US1–US5).
+Mobile app: Google sign-in, year-grouped shelf + filters, ISBN scan (cache-first → Google
+Books → manual), book detail (status/dates/rating/review, cover link/upload), profile
+dashboard (year filter with All toggle, status breakdown + avg rating, cumulative pace
+chart), full dark mode. Public web reads finished books live from `public_finished_shelf`
+(deployed via Cloudflare, tag `v2.2.0`); privacy verified (anon can't read `user_books`,
+review never exposed). `flutter analyze` 0 issues, `flutter test` 16 pass.
+**Remaining:** on-device install (deferred — needs a cable or paid Apple Developer) +
+on-device camera-scan smoke test. See [docs/prd.md](docs/prd.md) "Implementation status".
 
 **Spec Kit flow:** `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` →
 `/speckit-implement`. Each feature on its own `NNN-name` branch.

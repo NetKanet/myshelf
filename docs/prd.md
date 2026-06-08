@@ -9,25 +9,35 @@
 
 ---
 
-## Implementation status (อัปเดต 2026-06-08)
+## Implementation status (อัปเดต 2026-06-09) — ✅ MVP เสร็จครบ (tag `v1.1.0`)
 
-**Mobile app (Flutter) — ✅ เสร็จ + ผ่าน v2 UI polish**
+**Mobile app (Flutter) — ✅ ครบ US1–US4 + UI polish**
 
 - Google sign-in → Supabase, auth redirect (US1) ✅
-- Combined shelf จัดกลุ่มตามปี + funnel filter sheet (All/Want to Read/Reading/Finished) (US2) ✅
+- Combined shelf จัดกลุ่มตามปี + funnel filter (All/Want to Read/Reading/Finished) (US2) ✅
 - Scan ISBN cache-first → Google Books → manual entry แบบเต็มหน้า (US3) ✅
-- Book detail: status/dates, rating + review **ทุกสถานะ**, delete (US4) ✅
-- v2 polish: bottom nav (Shelf/+/Profile), gradient covers + deco bubbles, profile dashboard
-  (headline numbers, status breakdown, กราฟแท่งรายเดือน + กราฟเส้น "By month, per year"),
-  **dark mode เต็มระบบ** (settings toggle, การ์ด/sheet/input ตามธีม, ปุ่ม Save โทนคอรัล)
-- `flutter analyze` 0 issues, `flutter test` 16 ผ่าน (T035/T036) ✅
+- Book detail: status/dates, rating + review **ทุกสถานะ**, ตั้งปก (วาง link / อัปโหลดรูป
+  เข้า Storage bucket `book-covers` 5MB/image-only), delete (US4) ✅
+- **Profile dashboard:** year filter (มีปุ่ม All toggle, เลือกได้สูงสุด 3 ปี, เลื่อนแนวนอน),
+  status breakdown ตามปี (Finished/Reading/Want ตามวันของแต่ละสถานะ) + avg rating,
+  กราฟ "Reading pace" (สะสมรายเดือน) / "Finished over the years" (สะสมข้ามปี, โหมด All),
+  empty-state เมื่อไม่เลือกปี, Google avatar
+- **Dark mode เต็มระบบ** + performance (lazy list/covers, browser UA, decode ตามขนาดแสดง)
+- `flutter analyze` 0 issues, `flutter test` 16 ผ่าน
 
-**เหลือ — public web profile (US5) + ปิดงาน**
+**Public web profile (US5) — ✅ เสร็จ + deploy**
 
-- `app_config.owner_user_id` ยังไม่ตั้ง (T032)
-- `admyhusky-dev-template/data.js` ยังไม่ wire เข้า view `public_finished_shelf` (T033)
-- ตรวจ privacy guarantees ของ view (T034)
-- รัน 8 quickstart scenario บน simulator (T037)
+- `app_config.owner_user_id` = บัญชี Gmail เจ้าของ (T032) ✅
+- `admyhusky-dev-template/data.js` ดึงจาก view `public_finished_shelf` live + cache-bust
+  v2.2.0 → deploy Cloudflare Pages อัตโนมัติ (T033) ✅
+- Privacy verified: anon อ่าน `user_books` ตรงๆ ไม่ได้, review ไม่หลุดผ่าน view (T034) ✅
+- 8 quickstart scenarios — 6/8 ผ่านบน simulator+DB+tests, 2 (camera scan) ครอบด้วย
+  `scan_flow_test` รอ smoke test บนเครื่องจริง (T037) — ดู [quickstart-results.md](quickstart-results.md)
+
+**ข้อมูล:** import ประวัติการอ่านจริง 27 finished + 5 reading (ไทย + ปก) เข้าบัญชีเจ้าของแล้ว
+
+**เหลืออย่างเดียว:** ลงแอปบนมือถือจริง (deferred — ต้องมีสาย USB หรือ Apple Developer แบบจ่าย)
++ smoke test กล้องสแกนบนเครื่องจริง
 
 ---
 

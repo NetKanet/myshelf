@@ -26,8 +26,9 @@ private review**.
   full-page manual entry fallback.
 - **Book detail** — set status, start/finish dates, half-star rating, and a private
   review; set a cover by pasting an image link or uploading a photo.
-- **Profile dashboard** — headline counts, a status breakdown, a monthly bar chart, a
-  per-year multi-line chart, and your Google avatar. Light & full dark mode.
+- **Profile dashboard** — a year filter (with an "All" lifetime toggle), a status
+  breakdown and average rating that follow the selected years, a cumulative reading-pace
+  chart, and your Google avatar. Light & full dark mode.
 - **Public web profile** — `admyhusky.dev` reads finished books live from a read-only
   Supabase view; the review column is never exposed.
 
@@ -100,9 +101,12 @@ flutter test      # all tests pass
 
 ## Status
 
-Mobile app (US1–US4) and v2 UI polish complete; public-web integration wired against the
-live view. Remaining: deploy the public site and validate the quickstart scenarios. See
-[`docs/prd.md`](docs/prd.md) → "Implementation status".
+MVP complete — all 38 spec tasks (US1–US5) done, tagged `v1.1.0`. The mobile app and the
+live public-web integration (Cloudflare, `public_finished_shelf`) are shipped; privacy
+guarantees are verified. Remaining: an on-device install + camera-scan smoke test (deferred,
+needs a USB cable or a paid Apple Developer account). See
+[`docs/prd.md`](docs/prd.md) → "Implementation status" and
+[`docs/quickstart-results.md`](docs/quickstart-results.md).
 
 ## License
 
