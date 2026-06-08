@@ -151,6 +151,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 24),
                 _SectionTitle(
                   allMode ? 'Finished over the years' : 'Reading pace',
+                  subtitle: 'Books finished, cumulative',
                 ),
                 const SizedBox(height: 12),
                 _ChartCard(
@@ -869,13 +870,29 @@ class _ChipPill extends StatelessWidget {
 
 class _SectionTitle extends StatelessWidget {
   final String text;
-  const _SectionTitle(this.text);
+  final String? subtitle;
+  const _SectionTitle(this.text, {this.subtitle});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    final title = Text(
       text,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
+    );
+    if (subtitle == null) return title;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        title,
+        const SizedBox(height: 2),
+        Text(
+          subtitle!,
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.ink(context).withValues(alpha: 0.45),
+          ),
+        ),
+      ],
     );
   }
 }
