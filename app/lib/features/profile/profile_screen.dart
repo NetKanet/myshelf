@@ -31,7 +31,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return _selected.where(allYears.contains).toList()..sort();
   }
 
-  void _selectAll() => setState(() => _all = true);
+  void _toggleAll() => setState(() {
+    if (_all) {
+      // Tapping "All" again clears the filter (empty dashboard).
+      _all = false;
+      _selected = const [];
+    } else {
+      _all = true;
+    }
+  });
 
   void _toggle(int year, List<int> allYears) {
     setState(() {
@@ -113,7 +121,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     selected: selected,
                     maxYears: _maxYears,
                     allSelected: allMode,
-                    onSelectAll: _selectAll,
+                    onSelectAll: _toggleAll,
                     onToggle: (y) => _toggle(y, allYears),
                   ),
                   const SizedBox(height: 18),
